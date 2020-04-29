@@ -52,8 +52,7 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
   
   * El servicio debe contar con un FAQ en caso de tener una sugerencia, inquietud o necesitar ayuda respecto al uso del servicio.
 
-<br />
-<br />
+
 ### Descripción de componentes
 
 #### Web APP :
