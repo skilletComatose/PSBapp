@@ -80,7 +80,8 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
     Basureros.
 
 
-<br/>
+
+
 ![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
 
                                       Diagrama de la arquitectura 
