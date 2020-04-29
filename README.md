@@ -50,6 +50,6 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
   * El servicio debe contar con un FAQ en caso de tener una sugerencia, inquietud o necesitar ayuda respecto al uso del servicio.
 
 
-
-          Diagrama de la arquitectura 
 ![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
+
+                                      Diagrama de la arquitectura 
