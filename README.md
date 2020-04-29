@@ -1,28 +1,31 @@
- PSBapp
- ======
+ 
+  <h1 align="center"> PSBapp <h1/>
+
+
 Los Puntos de Basura Satelite (PSB) son un problema diario que se vive en la ciudad de Cartagena, ya que en ocasiones, estos basureros llegan a perdurar varios días emitiendo malos olores, generando problemas de salubridad, entre otros factores que incomodan a la ciudadanía, es por esta razón que se realiza el desarrollo de PSBapp, la cual es una aplicación que permite tener un mayor control del estado de estos PSB, para así facilitar a las autoridades y entidades correspondientes, la ubicación y el estado actual de estos PSB, para que de esta forma haya una solución rápida y eficiente.
 Como propósito de este proyecto está el afianzar conocimientos en cuanto al trabajo en equipo, desarrollar una API usando microservicios y recordar conocimientos pasados como el uso de requerimientos y el modelado de la APl.
  
  Descripción
  ----------
+
 PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actualizado en sus versiones más recientes, Este aplicativo WEB ha sido elaborado para brindar una solución al problema de basureros satélites en la ciudad de Cartagena, Esta aplicación será desarrollada con las herramientas Angular para el desarrollo del front-end, Flask para el desarrollo del backend, MongoDB que será utilizado en el motor de base de datos y RabbitMQ quien será el encargado de la comunicación de los microservicios.
  
 
 ## Captura de Requerimientos ##
 
 ### 1. Requerimientos Funcionales
-  
-  
+
+
   #### 1.1) Requerimientos de usuario: 
   
-  * El usuario NO necesita crear una cuenta para poder interactuar con el servicio.
+   * El usuario NO necesita crear una cuenta para poder interactuar con el servicio.
+
+   * El usuario debe ubicar las coordenadas del por medio de un mapa interactivo o ingresar la dirección del lugar a denunciar.
   
-  * El usuario debe ubicar las coordenadas del por medio de un mapa interactivo o ingresar la dirección del lugar a denunciar.
-  
-  * El usuario tendrá la opción anexar una fotografía actual del basurero a denunciar.
-  
-  * El usuario podrá observar los Puntos Satélite de Basura (PSB) dentro del mapa, arrojando los datos correspondientes al mismo.
-  
+   * El usuario tendrá la opción anexar una fotografía actual del basurero a denunciar.
+
+   * El usuario podrá observar los Puntos Satélite de Basura (PSB) dentro del mapa, arrojando los datos correspondientes al mismo.
+
   
   #### 1.2) Requerimientos del Sistema:
 
@@ -49,12 +52,8 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
   
   * El servicio debe contar con un FAQ en caso de tener una sugerencia, inquietud o necesitar ayuda respecto al uso del servicio.
 
-
-![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
-
-                                      Diagrama de la arquitectura 
-
-
+<br />
+<br />
 ### Descripción de componentes
 
 #### Web APP :
@@ -79,3 +78,9 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
     Bl Estadísticas : Bl Estadísticas es el microservicio encargado de hacer estadísticas
     tomando como base la información relacionada a los PSB que recibe del Crud
     Basureros.
+
+![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
+
+                                      Diagrama de la arquitectura 
+
+
