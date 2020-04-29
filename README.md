@@ -1,5 +1,6 @@
  
-  <h1 align="center"> PSBapp <h1/>
+PSBapp 
+=======
 
 
 Los Puntos de Basura Satelite (PSB) son un problema diario que se vive en la ciudad de Cartagena, ya que en ocasiones, estos basureros llegan a perdurar varios días emitiendo malos olores, generando problemas de salubridad, entre otros factores que incomodan a la ciudadanía, es por esta razón que se realiza el desarrollo de PSBapp, la cual es una aplicación que permite tener un mayor control del estado de estos PSB, para así facilitar a las autoridades y entidades correspondientes, la ubicación y el estado actual de estos PSB, para que de esta forma haya una solución rápida y eficiente.
@@ -78,6 +79,8 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
     tomando como base la información relacionada a los PSB que recibe del Crud
     Basureros.
 
+
+<br/>
 ![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
 
                                       Diagrama de la arquitectura 
