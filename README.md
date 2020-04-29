@@ -53,3 +53,29 @@ PSBapp es una app WEB desarrollada para funcionar en cualquier navegador actuali
 ![Diagrama de la acquitectura](https://github.com/skilletComatose/PSBapp/blob/master/Arquitectura.jpg)
 
                                       Diagrama de la arquitectura 
+
+
+### Descripción de componentes
+
+#### Web APP :
+    Componente donde se encuentra la interfaz web, la cual es la que
+    interactúa directamente con el usuario.
+    
+#### Puerta de enlace :
+    Puerta de enlace o API Gateway es el componente encargado
+    de dirigir las peticiones hechas por el usuario mediante la Web app hacía el
+    microservicio que ejerce la tarea solicitada, y asu vez retornar a la interfaz web la
+    respuesta de dicho microservicio.
+
+#### Colas de mensajes : 
+    Este componente es el encargado de comunicar los
+    microservicios CRUD Basureros y Bl Estadísticas.
+    Crud Basureros : Crud de basureros es nuestra API RESTful, la cual tendrá la
+    funcionalidad de dotar al microservicio Bl Estadísticas con la información necesaria
+    (en formato Json) para que este realice sus funciones , de la misma manera también
+    suministrará la información que se almacenará el la base de datos donde tendremos el
+    registro de los Puntos Satélite de Basura (PSB) , este componente de forma adicional
+    podrá hacer las operaciones CRUD en nuestro registro PSB.
+    Bl Estadísticas : Bl Estadísticas es el microservicio encargado de hacer estadísticas
+    tomando como base la información relacionada a los PSB que recibe del Crud
+    Basureros.
