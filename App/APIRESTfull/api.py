@@ -14,14 +14,16 @@ def psbPost():
         data = ReadJson(json)
        
         if(data.Validate()):
-            with client:
-                db = client.psb_data
-                db.psb.insert( data.Decode() )
+            #with client:
+            #    db = client.psb_data
+            #    db.psb.insert( data.Decode() )
                 return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
         
         else:
-            return jsonify({'ok': False, 'message': 'invalid input!'}), 400
+            return jsonify({"Data Missing ":data.missing}), 400
 
+    else:
+        return jsonify({"error":"Json empty"}), 400
 
     
 
