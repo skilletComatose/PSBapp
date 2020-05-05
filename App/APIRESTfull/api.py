@@ -1,29 +1,26 @@
-from flask import Flask,request,jsonify 
-#from App.APIRESTfull.client import client
-#from App.APIRESTfull.tools import ReadJson
-from client import client
-from tools import ReadJson
+from flask import Flask,request
+#from App.APIRESTfull.tools import ReadJson,SavePsb,OK,BAD,Empty
+from tools import ReadJson,SavePsb,OK,BAD,Empty
 app = Flask(__name__)
 
 
 # i have to validate database haven't duplicate data 
 @app.route("/api/v1/psb", methods=['GET', 'POST'])
 def psbPost():
-    json = request.get_json()
-    if(request.method == "POST" and json):
-        data = ReadJson(json)
+    data = request.get_json()
+    if( request.method == "POST" and data ):
+        Json = ReadJson(data)
        
-        if(data.Validate()):
-            #with client:
-            #    db = client.psb_data
-            #    db.psb.insert( data.Decode() )
-                return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
+        if( Json.Validate() ):
+            client = SavePsb( "mongo", "root", "pass" )
+            client.Save( Json.Decode(),"psb_data","psb" )
+            return OK()
         
         else:
-            return jsonify({"Data Missing ":data.missing}), 400
+            return BAD( Json.missing )
 
     else:
-        return jsonify({"error":"Json empty"}), 400
+        return Empty()
 
     
 
