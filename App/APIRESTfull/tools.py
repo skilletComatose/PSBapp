@@ -21,10 +21,10 @@ class ReadJson:
     def Validate(self):
         # complete returns true if all data is present 
         complete = (
-            'longitude'  in self.Decode()  and
-            'latitude'  in self.Decode()  and     
+            'longitude'    in self.Decode()  and
+            'latitude'     in self.Decode()  and     
             'status'       in self.Decode()  and    
-            'address'    in self.Decode()  and
+            'address'      in self.Decode()  and
             'neighborhood' in self.Decode()  
         )
         
@@ -83,30 +83,45 @@ class SaveImage:
     def Allowed_file(self,filename):
         return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in self.ok
+
     
     def Save(self,KeyName,AppConfig):
         if KeyName in request.files:
             file = request.files[ KeyName ]                
-            if file.filename == '':
-                return BAD( "error"," No selected file " )
-
+            
             if file and self.Allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                self.name = filename
-                #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                newName = ChangeName(filename)
+                self.name = newName
                 if(self.name != None and self.name != ''):
-                    file.save(os.path.join(AppConfig, filename) )        
+                    file.save(os.path.join(AppConfig, newName) )        
         else:
             return BAD( "error","keyname doen't are in the dict" )
         
 
 def OK():
     return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
+
 def BAD(error,description):
     return jsonify({error:description}), 400                
-def Empty():    
-    return jsonify({"error":"Json empty"}), 400           
 
+def Point(string):
+    for i in range( len(string) ):
+        if(string[i]=="."):
+            return i
 
-        
+def ChangeName(filename):
+    x = datetime.datetime.now()
+    header = ""
+    date = str(x)
+    x = Point(filename)
+    extension="."
     
+    for i in range(x):
+        header += filename[i]
+    
+    for i in range(x+1,len(filename)):
+        extension += filename[i]
+    
+    filename = header +"_"+date + extension
+    return filename

@@ -3,6 +3,7 @@ RUN pip3 install Flask
 RUN pip3 install pymongo
 RUN apt update && apt install nano
 RUN mkdir img
+
 COPY api.py .
 COPY tools.py .
 COPY database.py .

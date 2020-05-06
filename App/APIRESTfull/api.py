@@ -1,6 +1,6 @@
 from flask import Flask,request
-from tools import ReadJson,SavePsb,OK,BAD,Empty,SaveImage
-#from App.APIRESTfull.tools import ReadJson,SavePsb,OK,BAD,Empty,SaveImage
+from tools import ReadJson,SavePsb,OK,BAD,SaveImage
+#from App.APIRESTfull.tools import ReadJson,SavePsb,OK,BAD,SaveImage
 
 UPLOAD_FOLDER = '/img'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -51,16 +51,3 @@ def psbPost():
             return BAD( "error" ,Json.missing )
     
 
-    
-
-
-#    if 'file' in request.files:
-#        file = request.files['file']
-#
-#    if file.filename == '':
-#        return BAD( {"error":"Missing image"} )
-#
-#    if file and allowed_file(file.filename):
-#        filename = secure_filename(file.filename)
-#        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#        return 'uploaded_file',filename
