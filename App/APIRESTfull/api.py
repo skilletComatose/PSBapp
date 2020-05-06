@@ -8,9 +8,6 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 folder = app.config['UPLOAD_FOLDER']
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 err1 = "error with image "
 err2 = "key posted not in dict :("
