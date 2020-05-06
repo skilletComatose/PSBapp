@@ -1,28 +1,24 @@
 import json
-data={
-  "id": 0,
-  "coordinates": "[51.508, -0.11]",
-  "imageId": "string",
-  "active": "true",
-  "CreationDate": "[ 02, 03, 2020]",
-  "LastUpdated": "[12 ,12 ,2020] ",
-  #"direction": "string",
-  "neighborhood": "string"
-}
+data="{  \"longitude\":\"any\",  \"latitude\": \"any\",  \"imageId\": \"2\",  \"status\" : \"W\",  \"addres\": \"gaviotas Cll 23 kr \",  \"neighborhood\": \"las gaviotas\"}"
+
 
 #dumps the json object into an element
-json_str = json.dumps(data)
-
+#json_str = json.dumps(data)
+#print("\ndumps",json_str)
+#print(type(json_str))
 #load the json to a string
-resp = json.loads(json_str)
-
+#resp = json.loads(data)
+#print("\n\nloads",resp)
+#print(type(resp),resp['longitude'])
+#p = resp.keys()
+#print(p)
 class ReadJson:
     def __init__(self,json_data):
         self.json = json_data
     def Decode(self):
-        data = json.dumps(self.json)
-        data2 = json.loads(data)
-        return data2  
+        #data = json.dumps(self.json)
+        data = json.loads(self.json)
+        return data  
     
     def Validate(self):
         return('id'        in self.Decode()  and  
@@ -35,9 +31,7 @@ class ReadJson:
             'neighborhood' in self.Decode()  
         )
 #print the resp
-r = ReadJson(data)
-if( r.Validate() ):
-    print("positivo")
-
-print(r.Validate())
+p = ReadJson(data)
+q = p.Decode()
+print(q['status'])
 #//extract an element in the response

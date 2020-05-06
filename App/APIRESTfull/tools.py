@@ -1,8 +1,10 @@
 import json
-from flask import jsonify 
-from database import Login
-import pymongo
 import datetime
+import os
+import pymongo
+from flask import jsonify ,request
+from database import Login
+from werkzeug.utils import secure_filename
 #from App.APIRESTfull.database import Login
 
 
@@ -12,18 +14,17 @@ class ReadJson:
         self.json = json_data
         self.missing = []
     def Decode(self):
-        data = json.dumps(self.json)
-        data2 = json.loads(data)
-        return data2  
+        data = json.loads(self.json)
+        return data
+
     
     def Validate(self):
         # complete returns true if all data is present 
         complete = (
             'longitude'  in self.Decode()  and
-            'latitude'  in self.Decode()  and  
-            'imageId'      in self.Decode()  and   
+            'latitude'  in self.Decode()  and     
             'status'       in self.Decode()  and    
-            'addres'    in self.Decode()  and
+            'address'    in self.Decode()  and
             'neighborhood' in self.Decode()  
         )
         
@@ -33,14 +34,11 @@ class ReadJson:
         else: # return False if any key is missing, also
               # searches for the missing key and adds it to a missing list 
               
-            if('imageId' not in self.Decode()):  
-                self.missing.append ('Missing psb image')       
-
             if('status' not in self.Decode()):  
                 self.missing.append ('Missing psb status')
             
-            if('addres' not in self.Decode()):  
-                self.missing.append ('Missing psb addres')                
+            if('address' not in self.Decode()):  
+                self.missing.append ('Missing psb address')                
 
             if('neighborhood' not in self.Decode()):  
                 self.missing.append ('Missing psb neighborhood')
@@ -59,32 +57,56 @@ class SavePsb:
         self.login = Login(HostName,UserName,Password)
         self.db = None
     
-    def Save(self,JsonToSave,DatabaseName,CollectionName):
+    def Save(self,JsonToSave,DatabaseName,CollectionName,ImageName):
+        self.imgId = ImageName
         self.json = JsonToSave
         self.db = self.login.Client()[DatabaseName]
         self.db[CollectionName].insert(
                                     {   
-                                        'imageId':self.json['imageId'],
-                                        'latitude':self.json['latitude'],
-                                        'longitude':self.json['longitude'],
-                                        'status':self.json['status'],
-                                        'addres':self.json['addres'],
-                                        'neighborhood':self.json['neighborhood'],
-                                        'CreationDate':datetime.datetime.utcnow() ,
+                                        'imageId':self.imgId                     ,
+                                        'latitude':self.json['latitude']         ,
+                                        'longitude':self.json['longitude']       ,
+                                        'status':self.json['status']             ,
+                                        'address':self.json['address']             ,
+                                        'neighborhood':self.json['neighborhood'] ,
+                                        'CreationDate':datetime.datetime.utcnow(),
                                         'LastUpdated': datetime.datetime.utcnow()
                                     }        
         
                                  )
         
+class SaveImage:
+    def __init__(self,ALLOWED_EXTENSIONS):
+        self.ok = ALLOWED_EXTENSIONS
+        self.name = None
+    
+    def Allowed_file(self,filename):
+        return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in self.ok
+    
+    def Save(self,KeyName,AppConfig):
+        if KeyName in request.files:
+            file = request.files[ KeyName ]                
+            if file.filename == '':
+                return BAD( "error"," No selected file " )
+
+            if file and self.Allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                self.name = filename
+                #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                if(self.name != None and self.name != ''):
+                    file.save(os.path.join(AppConfig, filename) )        
+        else:
+            return BAD( "error","keyname doen't are in the dict" )
         
 
 def OK():
     return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
-def BAD(x):
-    return jsonify({"Data Missing ":x}), 400                
+def BAD(error,description):
+    return jsonify({error:description}), 400                
 def Empty():    
     return jsonify({"error":"Json empty"}), 400           
-  
-                    
-            
 
+
+        
+    
