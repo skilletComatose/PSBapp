@@ -1,6 +1,11 @@
 from flask import Flask,request
 from tools import ReadJson,ManagePsb,OK,BAD,SaveImage
 #from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage
+#we will work with 3 status,
+#A(active)
+#I(inactive)
+#V(validate , it's meaning that admin gotta to do a verification)
+
 
 UPLOAD_FOLDER = '/img'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -37,7 +42,8 @@ def psbPost():
             return BAD( "error with json file ", msg4, 400)
         
         Json = ReadJson(data[dataKey]) #datakey is the json key where psb informations are (psb is a key in data dict     )
-        if( Json.Validate() ):
+        dictionary = Json.Decode()
+        if( Json.Validate( dictionary ) ):
             img = SaveImage( ALLOWED_EXTENSIONS ) 
             media = request.files
             if(imageKey not in media and imageKey in data ):
@@ -50,7 +56,6 @@ def psbPost():
             ImageId = img.name
             if( ImageId != None and ImageId != " " ):
                 client = ManagePsb( host, user,password,databaseName )
-                dictionary = Json.Decode()
                 query = {
                             "latitude":dictionary["latitude"],
                             "longitude":dictionary["longitude"]

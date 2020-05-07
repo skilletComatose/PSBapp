@@ -18,13 +18,13 @@ class ReadJson:
         return data
 
     
-    def Validate(self):
+    def Validate(self,JsonToValidate):
         # complete returns true if all data is present 
         complete = (
-            'longitude'    in self.Decode()  and
-            'latitude'     in self.Decode()  and       
-            'address'      in self.Decode()  and
-            'neighborhood' in self.Decode()  
+            'longitude'    in JsonToValidate  and
+            'latitude'     in JsonToValidate  and       
+            'address'      in JsonToValidate  and
+            'neighborhood' in JsonToValidate  
         )
         
         if(complete):
