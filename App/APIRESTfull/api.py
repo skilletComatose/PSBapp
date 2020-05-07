@@ -57,14 +57,17 @@ def psbPost():
             if( ImageId != None and ImageId != " " ):
                 client = ManagePsb( host, user,password,databaseName )
                 query = {
-                            "latitude":dictionary["latitude"],
-                            "longitude":dictionary["longitude"]
+                            "latitude" :dictionary["latitude"] ,
+                            "longitude":dictionary["longitude"],
+                                         
                         }
-                        
-                cursor = client.Filter( dictionary, query, collection ) 
+                Projection = {"status":1}
+      
+                cursor = client.Filter( dictionary, collection, query, Projection ) 
                 c = cursor.count()
                 if( c == 0 ):  
-                   client.Save( Json.Decode(),collection, img.name )
+                    client.Save( Json.Decode(),collection, img.name )
+                    img.Upload()
                 
                 else:
                    return BAD ("Warning",warning,400)                

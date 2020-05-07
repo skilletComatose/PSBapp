@@ -55,13 +55,19 @@ class ManagePsb:
     
 
     
-    def Filter(self,DictToValidate,Condition_To_DoTheFilter,Collection_Where_Filter_WillDo):
+    def Filter(self,DictToValidate,Collection_Where_Filter_WillDo, Condition_To_DoTheFilter,Projection=None):
        query = Condition_To_DoTheFilter
-       fil = self.db[Collection_Where_Filter_WillDo].find(query)
        self.db
+       if(Projection):
+            fil = self.db[Collection_Where_Filter_WillDo].find( query, Projection)
+       else:      
+            fil = self.db[Collection_Where_Filter_WillDo].find(query)
        return fil
         
-    
+#    def Update(self,DataToUpdate,WhereUpdate,Collection_Where_Update):
+#        self.db
+
+
     def Save(self,JsonToSave,CollectionName,ImageName):
         self.imgId = ImageName
         self.json = JsonToSave
@@ -83,6 +89,9 @@ class SaveImage:
     def __init__(self,ALLOWED_EXTENSIONS):
         self.ok = ALLOWED_EXTENSIONS
         self.name = None
+        self.file = None
+        self.conf = None
+    
     
     def Allowed_file(self,filename):
         return '.' in filename and \
@@ -92,13 +101,17 @@ class SaveImage:
     def Save(self,KeyName,AppConfig):
         if KeyName in request.files:
             file = request.files[ KeyName ]                
-            
+            self.file = file
+            self.conf = AppConfig
             if file and self.Allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 newName = ChangeName(filename)
                 self.name = newName
-                if(self.name != None and self.name != ''):
-                    file.save(os.path.join(AppConfig, newName) )        
+
+
+    def Upload(self):            
+        if(self.name != None and self.name != ''):
+            self.file.save(os.path.join(self.conf, self.name) )        
                 
 
 def OK():
