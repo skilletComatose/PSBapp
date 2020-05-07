@@ -22,8 +22,7 @@ class ReadJson:
         # complete returns true if all data is present 
         complete = (
             'longitude'    in self.Decode()  and
-            'latitude'     in self.Decode()  and     
-            'status'       in self.Decode()  and    
+            'latitude'     in self.Decode()  and       
             'address'      in self.Decode()  and
             'neighborhood' in self.Decode()  
         )
@@ -33,9 +32,6 @@ class ReadJson:
             
         else: # return False if any key is missing, also
               # searches for the missing key and adds it to a missing list 
-              
-            if('status' not in self.Decode()):  
-                self.missing.append ('Missing psb status')
             
             if('address' not in self.Decode()):  
                 self.missing.append ('Missing psb address')                
@@ -52,22 +48,30 @@ class ReadJson:
             return False
 
 
-class SavePsb:
-    def __init__(self,HostName,UserName,Password):
+class ManagePsb:
+    def __init__(self,HostName,UserName,Password,DatabaseName):
         self.login = Login(HostName,UserName,Password)
-        self.db = None
+        self.db = self.login.Client()[DatabaseName]
     
-    def Save(self,JsonToSave,DatabaseName,CollectionName,ImageName):
+
+    
+    def Filter(self,DictToValidate,Condition_To_DoTheFilter,Collection_Where_Filter_WillDo):
+       query = Condition_To_DoTheFilter
+       fil = self.db[Collection_Where_Filter_WillDo].find(query)
+       self.db
+       return fil
+        
+    
+    def Save(self,JsonToSave,CollectionName,ImageName):
         self.imgId = ImageName
         self.json = JsonToSave
-        self.db = self.login.Client()[DatabaseName]
         self.db[CollectionName].insert(
                                     {   
                                         'imageId':self.imgId                     ,
                                         'latitude':self.json['latitude']         ,
                                         'longitude':self.json['longitude']       ,
-                                        'status':self.json['status']             ,
-                                        'address':self.json['address']             ,
+                                        'status':'none'                              ,
+                                        'address':self.json['address']           ,
                                         'neighborhood':self.json['neighborhood'] ,
                                         'CreationDate':datetime.datetime.utcnow(),
                                         'LastUpdated': datetime.datetime.utcnow()
@@ -95,15 +99,13 @@ class SaveImage:
                 self.name = newName
                 if(self.name != None and self.name != ''):
                     file.save(os.path.join(AppConfig, newName) )        
-        else:
-            return BAD( "error","keyname doen't are in the dict" )
-        
+                
 
 def OK():
     return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
 
-def BAD(error,description):
-    return jsonify({error:description}), 400                
+def BAD(error,description,ResponseCode):
+    return jsonify({error:description}), ResponseCode                
 
 def Point(string):
     for i in range( len(string) ):
