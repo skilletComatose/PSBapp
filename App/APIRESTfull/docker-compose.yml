@@ -21,3 +21,5 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pass
     
+    volumes:
+      - ./db:/data    

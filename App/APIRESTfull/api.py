@@ -1,6 +1,6 @@
-from flask import Flask,request
-from tools import ReadJson,ManagePsb,OK,BAD,SaveImage
-#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage
+from flask import Flask,request,jsonify
+from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,PutId
+#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,PutId
 #we will work with 3 status,
 #A(active)
 #I(inactive)
@@ -31,8 +31,9 @@ msg4 = "Key posted not in dict :("
 warning = "The psb sent is already registered, but thanks for send it"
 # i have to validate database haven't duplicate data 
 
-@app.route("/api/psb", methods=['GET', 'POST'])
+@app.route("/api/psb/", methods=['GET', 'POST'])
 def psbPost():
+
     data = request.form.to_dict() #data is a dict with multipart/form-data
     dataKey = "psb"
     imageKey ="img"   
@@ -61,16 +62,18 @@ def psbPost():
                             "longitude":dictionary["longitude"],
                                          
                         }
-                Projection = {"status":1}
-      
-                cursor = client.Filter( dictionary, collection, query, Projection ) 
+                Projection = {
+                                "status":1,
+                                "_id":0
+                             }     
+                cursor = client.Filter( collection, query, Projection ) 
                 c = cursor.count()
                 if( c == 0 ):  
                     client.Save( Json.Decode(),collection, img.name )
                     img.Upload()
                 
                 else:
-                   return BAD ("Warning",warning,400)                
+                   return BAD ("Warning",warning,409)                
             else:
                 return BAD( err1, msg ,400) 
             
@@ -80,4 +83,16 @@ def psbPost():
         else:
             return BAD( "error" ,Json.missing, 400 )
     
-
+    if(request.method == "GET"):
+        client = ManagePsb( host, user,password,databaseName )        
+        query = {}                      
+               
+        Projection = {
+                      'longitude':1,
+                       'latitude':1,
+                        "_id":0
+                     } 
+        cursor = client.Filter( collection, query, Projection )  
+        info = list(cursor)
+        Psbdata = PutId(info,Json=True)
+        return Psbdata

@@ -7,7 +7,6 @@ from database import Login
 from werkzeug.utils import secure_filename
 #from App.APIRESTfull.database import Login
 
-
 class ReadJson:
     #read a Json object, turns it into a string and then into a dictionary 
     def __init__(self,json_data):
@@ -52,20 +51,24 @@ class ManagePsb:
     def __init__(self,HostName,UserName,Password,DatabaseName):
         self.login = Login(HostName,UserName,Password)
         self.db = self.login.Client()[DatabaseName]
+        self.database = DatabaseName
     
 
     
-    def Filter(self,DictToValidate,Collection_Where_Filter_WillDo, Condition_To_DoTheFilter,Projection=None):
+    def Filter(self,Collection_Where_Filter_WillDo, Condition_To_DoTheFilter,Projection=None):
        query = Condition_To_DoTheFilter
-       self.db
        if(Projection):
             fil = self.db[Collection_Where_Filter_WillDo].find( query, Projection)
        else:      
             fil = self.db[Collection_Where_Filter_WillDo].find(query)
        return fil
         
-#    def Update(self,DataToUpdate,WhereUpdate,Collection_Where_Update):
-#        self.db
+    def Update(self,CollectionName,DataToUpdate,query,Change):
+        result = self.db[CollectionName].update( query, { "$set" : Change })
+        if (result.modified_count > 0): 
+            return True 
+        else:
+            return False
 
 
     def Save(self,JsonToSave,CollectionName,ImageName):
@@ -124,6 +127,23 @@ def Point(string):
     for i in range( len(string) ):
         if(string[i]=="."):
             return i
+            
+def PutId(Thelist,Id=None,progress=None,Json=False):
+    if(progress and Id):
+        for anydata in Thelist:
+            anydata['id'] = Id
+            Id += progress
+    else:
+        Id = 1
+        for anydata in Thelist:
+            anydata['id'] = Id
+            Id += 1
+    if(json):
+        return jsonify(Thelist)
+    else:
+        return Thelist 
+    
+
 
 def ChangeName(filename):
     x = datetime.datetime.now()
