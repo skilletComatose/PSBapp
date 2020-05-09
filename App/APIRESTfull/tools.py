@@ -57,6 +57,7 @@ class ManagePsb:
     
     def Filter(self,Collection, query=None,Key=None,Value=None,Operator=None,Projection=None):
         #query in the conndition to do the filter
+        #projection is a data filter, to don't return all data 
        if(Projection and query):
             fil = self.db[Collection].find( query, Projection)
        
