@@ -34,7 +34,6 @@ warning = "The psb sent is already registered, but thanks for send it"
 
 @app.route("/api/psb/", methods=['GET', 'POST'])
 def psbPost():
-
     data = request.form.to_dict() #data is a dict with multipart/form-data
     dataKey = "psb"
     imageKey ="img"   
@@ -57,7 +56,7 @@ def psbPost():
             img.Save( imageKey, folder ) # imagekey is the key with image was posted
             ImageId = img.name
             if( ImageId != None and ImageId != " " ):
-                client = ManagePsb( host, user,password,databaseName )
+                client = ManagePsb( host, user, password, databaseName )
                 query = {
                             "latitude" :dictionary["latitude"] ,
                             "longitude":dictionary["longitude"],
@@ -67,7 +66,7 @@ def psbPost():
                                 "status":1,
                                 "_id":0
                              }     
-                cursor = client.Filter( collection, query, Projection ) 
+                cursor = client.Filter( collection, query=query,Projection=Projection ) 
                 c = cursor.count()
                 if( c == 0 ):
                     json = Json.Decode()  
@@ -87,8 +86,10 @@ def psbPost():
     
     if(request.method == "GET"):
         client = ManagePsb( host, user,password,databaseName )        
-        query = {}                      
-               
+
+        key = 'status'
+        value = [ 'A', 'a']
+        operator = '$in'  
         Projection = {
                       'longitude':1,
                        'latitude':1,
@@ -98,7 +99,7 @@ def psbPost():
 
         
 
-        cursor = client.Filter( collection, query, Projection )  
+        cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
         
         url = 'http://127.0.0.1/api/psb/image/'
@@ -120,4 +121,14 @@ def ImageResponse(ImageName):
         return send_from_directory(folder,filename, as_attachment=True)                                 
 
 
-    
+@app.route("/api/psb/statistics")
+def ReturnData():
+    client = ManagePsb( host, user,password,databaseName )
+    projection = {
+                    'imageId':0,
+                        "_id":0
+                 }
+    cursor = client.Filter(collection, Projection=projection)
+    info = list(cursor)
+    newInfo = ManageKeys(info)
+    return newInfo.LikeJson()

@@ -55,12 +55,16 @@ class ManagePsb:
     
 
     
-    def Filter(self,Collection_Where_Filter_WillDo, Condition_To_DoTheFilter,Projection=None):
-       query = Condition_To_DoTheFilter
-       if(Projection):
-            fil = self.db[Collection_Where_Filter_WillDo].find( query, Projection)
-       else:      
-            fil = self.db[Collection_Where_Filter_WillDo].find(query)
+    def Filter(self,Collection, query=None,Key=None,Value=None,Operator=None,Projection=None):
+        #query in the conndition to do the filter
+       if(Projection and query):
+            fil = self.db[Collection].find( query, Projection)
+       
+       if(Projection and Key and Value and Operator ):
+           fil = self.db[Collection].find({ Key : { Operator:Value } } , Projection)
+       
+       if(query==None):      
+            fil = self.db[Collection].find({},Projection)
        return fil
         
     def Update(self,CollectionName,DataToUpdate,query,Change):
@@ -79,7 +83,7 @@ class ManagePsb:
                                         'imageId':self.imgId                     ,
                                         'latitude':self.json['latitude']         ,
                                         'longitude':self.json['longitude']       ,
-                                        'status':'none'                              ,
+                                        'status':'V'                              ,
                                         'address':self.json['address']           ,
                                         'neighborhood':self.json['neighborhood'] ,
                                         'CreationDate':datetime.datetime.utcnow(),
