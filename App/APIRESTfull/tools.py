@@ -87,7 +87,43 @@ class ManagePsb:
                                     }        
         
                                  )
+class ManageKeys: #to do operations in  dics list
+    def __init__(self,Lis_Of_dict):
+        self.list = Lis_Of_dict        
+
+    def Add(self,key,value,Data_To_concatenate = None,concatenate=False):
+        if(concatenate and Data_To_concatenate):
+            i = 0
+            base = Data_To_concatenate
+            for data in self.list :
+                data[key] =  base + value[i]
+                i += 1 
         
+        else:       
+            for data in self.list :
+                data[key] = value
+
+    def Remove(self,key):
+        for data in self.list :
+            del data[key]
+
+    def PutId(self,Id=None,progress=None):
+        if(progress and Id):
+            for anydata in self.list:
+                anydata['id'] = Id
+                Id += progress
+        else:
+            Id = 1
+            for anydata in self.list:
+                anydata['id'] = Id
+                Id += 1
+
+    
+    def LikeJson(self):
+        return jsonify (self.list)
+
+
+
 class SaveImage:
     def __init__(self,ALLOWED_EXTENSIONS):
         self.ok = ALLOWED_EXTENSIONS
@@ -128,27 +164,13 @@ def Point(string):
         if(string[i]=="."):
             return i
             
-def PutId(Thelist,Id=None,progress=None,Json=False):
-    if(progress and Id):
-        for anydata in Thelist:
-            anydata['id'] = Id
-            Id += progress
-    else:
-        Id = 1
-        for anydata in Thelist:
-            anydata['id'] = Id
-            Id += 1
-    if(json):
-        return jsonify(Thelist)
-    else:
-        return Thelist 
     
-
 
 def ChangeName(filename):
     x = datetime.datetime.now()
     header = ""
     date = str(x)
+    date = date.replace(" ","_")
     x = Point(filename)
     extension="."
     

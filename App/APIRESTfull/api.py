@@ -1,6 +1,7 @@
 from flask import Flask,request,jsonify
-from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,PutId
-#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,PutId
+from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys
+from flask import send_from_directory,make_response
+#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys
 #we will work with 3 status,
 #A(active)
 #I(inactive)
@@ -29,7 +30,7 @@ msg2 =  ["1. Field error :key posted not in dict"  ,
 msg3 = "key are ok but, the image wasn't sent :("
 msg4 = "Key posted not in dict :("
 warning = "The psb sent is already registered, but thanks for send it"
-# i have to validate database haven't duplicate data 
+
 
 @app.route("/api/psb/", methods=['GET', 'POST'])
 def psbPost():
@@ -41,8 +42,8 @@ def psbPost():
     if( request.method == "POST" and data ):
         if dataKey not in data :
             return BAD( "error with json file ", msg4, 400)
-        
-        Json = ReadJson(data[dataKey]) #datakey is the json key where psb informations are (psb is a key in data dict     )
+        d = data[dataKey] #datakey is the json key where psb informations are (psb is a key in data dict     )
+        Json = ReadJson( d ) 
         dictionary = Json.Decode()
         if( Json.Validate( dictionary ) ):
             img = SaveImage( ALLOWED_EXTENSIONS ) 
@@ -68,8 +69,9 @@ def psbPost():
                              }     
                 cursor = client.Filter( collection, query, Projection ) 
                 c = cursor.count()
-                if( c == 0 ):  
-                    client.Save( Json.Decode(),collection, img.name )
+                if( c == 0 ):
+                    json = Json.Decode()  
+                    client.Save( json ,collection, img.name )
                     img.Upload()
                 
                 else:
@@ -90,9 +92,32 @@ def psbPost():
         Projection = {
                       'longitude':1,
                        'latitude':1,
+                       'imageId':1,
                         "_id":0
                      } 
+
+        
+
         cursor = client.Filter( collection, query, Projection )  
         info = list(cursor)
-        Psbdata = PutId(info,Json=True)
-        return Psbdata
+        
+        url = 'http://127.0.0.1/api/psb/image/'
+        key = 'photo'
+        value =[]
+        newInfo = ManageKeys(info)
+        for i in range( len(info) ):
+            value.append(info[i]['imageId'])
+        
+        newInfo.Add( key , value, url,concatenate=True ) #add to any cocument in the list (photo : url + image resource)
+        newInfo.PutId()                                  #add id to avery document
+        newInfo.Remove('imageId')
+        return newInfo.LikeJson()
+
+
+@app.route("/api/psb/image/<ImageName>", methods=['GET'])
+def ImageResponse(ImageName):
+        filename = ImageName
+        return send_from_directory(folder,filename, as_attachment=True)                                 
+
+
+    

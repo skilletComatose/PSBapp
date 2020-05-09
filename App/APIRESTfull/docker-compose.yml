@@ -12,7 +12,10 @@ services:
 
     links: 
       - mongo 
-  
+    
+    volumes:
+      - ./api:/data  
+
   mongo:
     container_name: db1
     image: mongo
