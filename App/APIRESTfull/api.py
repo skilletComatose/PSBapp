@@ -108,8 +108,8 @@ def psbPost():
         for i in range( len(info) ):
             value.append(info[i]['imageId'])
         
-        newInfo.Add( key , value, url,concatenate=True ) #add to any cocument in the list (photo : url + image resource)
-        newInfo.PutId()                                  #add id to avery document
+        newInfo.Add( key , value, url, concatenate=True ) #add to any document in the list (photo : url + image resource)
+        newInfo.PutId()                                  #add id to every document
         newInfo.Remove('imageId')
         return newInfo.LikeJson()
 
