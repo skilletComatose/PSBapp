@@ -113,7 +113,7 @@ def psbPost():
         newInfo.PutId()                                  #add id to every document
         newInfo.Remove('imageId')
         return newInfo.LikeJson()
-        return jsonify(info)   
+           
 
 @app.route("/api/psb/image/<ImageName>", methods=['GET'])
 def ImageResponse(ImageName):
