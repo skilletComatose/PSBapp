@@ -64,7 +64,7 @@ class ManagePsb:
        if(Projection and Key and Value and Operator ):
            fil = self.db[Collection].find({ Key : { Operator:Value } } , Projection)
        
-       if(query==None):      
+       if(query == None and Key == None):      
             fil = self.db[Collection].find({},Projection)
        return fil
         
