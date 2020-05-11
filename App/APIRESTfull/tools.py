@@ -7,16 +7,16 @@ from database import Login
 from werkzeug.utils import secure_filename
 #from App.APIRESTfull.database import Login
 
-class ReadJson:
-    #read a Json object, turns it into a string and then into a dictionary 
+                 
+class ReadJson: #read a Json object, turns it into a string and then into a dictionary
     def __init__(self,json_data):
         self.json = json_data
         self.missing = []
+    
     def Decode(self):
         data = json.loads(self.json)
         return data
 
-    
     def Validate(self,JsonToValidate):
         # complete returns true if all data is present 
         complete = (
@@ -47,13 +47,40 @@ class ReadJson:
             return False
 
 
+class Admin_ReadJson(ReadJson):    
+    def Decode(self):
+        data = json.dumps(self.json)
+        data2 = json.loads(data2)
+        return data
+
+    def Validate(self,JsonToValidate):
+        # complete returns true if all data is present 
+        complete = (
+            '_id'        in JsonToValidate  and
+            'status'     in JsonToValidate  
+        )
+        
+        if(complete):
+            return True
+            
+        else: # return False if any key is missing, also
+              # searches for the missing key and adds it to a missing list 
+            
+            if('_id' not  in JsonToValidate):  
+                self.missing.append ('Missing id ')                
+
+            if('status' not in JsonToValidate):  
+                self.missing.append ('Missing psb status')
+
+            return False
+
+
 class ManagePsb:
     def __init__(self,HostName,UserName,Password,DatabaseName):
         self.login = Login(HostName,UserName,Password)
         self.db = self.login.Client()[DatabaseName]
         self.database = DatabaseName
     
-
     
     def Filter(self,Collection, query=None,Key=None,Value=None,Operator=None,Projection=None):
         #query in the conndition to do the filter
@@ -92,6 +119,8 @@ class ManagePsb:
                                     }        
         
                                  )
+
+
 class ManageKeys: #to do operations in  dics list
     def __init__(self,Lis_Of_dict):
         self.list = Lis_Of_dict        
@@ -157,6 +186,11 @@ class SaveImage:
         if(self.name != None and self.name != ''):
             self.file.save(os.path.join(self.conf, self.name) )        
                 
+
+
+
+
+
 
 def OK():
     return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200

@@ -102,17 +102,17 @@ def psbPost():
         cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
         
-#        url = 'http://127.0.0.1/api/psb/image/'
-#        key = 'photo'
-#        value =[]
-#        newInfo = ManageKeys(info)
-#        for i in range( len(info) ):
-#            value.append(info[i]['imageId'])
-#        
-#        newInfo.Add( key , value, url, concatenate=True ) #add to any document in the list (photo : url + image resource)
-#        newInfo.PutId()                                  #add id to every document
-#        newInfo.Remove('imageId')
-#        return newInfo.LikeJson()
+        url = 'http://127.0.0.1/api/psb/image/'
+        key = 'photo'
+        value =[]
+        newInfo = ManageKeys(info)
+        for i in range( len(info) ):
+            value.append(info[i]['imageId'])
+        
+        newInfo.Add( key , value, url, concatenate=True ) #add to any document in the list (photo : url + image resource)
+        newInfo.PutId()                                  #add id to every document
+        newInfo.Remove('imageId')
+        return newInfo.LikeJson()
         return jsonify(info)   
 
 @app.route("/api/psb/image/<ImageName>", methods=['GET'])
