@@ -32,16 +32,16 @@ class ReadJson:
         else: # return False if any key is missing, also
               # searches for the missing key and adds it to a missing list 
             
-            if('address' not in self.Decode()):  
+            if('address' not in JsonToValidate):  
                 self.missing.append ('Missing psb address')                
 
-            if('neighborhood' not in self.Decode()):  
+            if('neighborhood' not in JsonToValidate):  
                 self.missing.append ('Missing psb neighborhood')
 
-            if('latitude' not in self.Decode()):  
+            if('latitude' not in JsonToValidate):  
                 self.missing.append ('Missing psb latitude')       
 
-            if('longitude' not in self.Decode()):  
+            if('longitude' not in JsonToValidate):  
                 self.missing.append ('Missing psb longitude')
 
             return False
