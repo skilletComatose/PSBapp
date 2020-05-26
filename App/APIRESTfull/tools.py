@@ -5,6 +5,7 @@ import pymongo
 from flask import jsonify ,request
 from database import Login
 from werkzeug.utils import secure_filename
+from passlib.apps import custom_app_context as pwd_context
 #from App.APIRESTfull.database import Login
 
                  
@@ -50,38 +51,42 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
 class Admin_ReadJson(ReadJson):    
     def Decode(self):
         data = json.dumps(self.json)
-        data2 = json.loads(data2)
-        return data
+        data2 = json.loads(data)
+        return data2
 
     def Validate(self,JsonToValidate):
         # complete returns true if all data is present 
-        complete = (
-            '_id'        in JsonToValidate  and
-            'status'     in JsonToValidate  
-        )
+        complete = ('status' in JsonToValidate )
+                                    
         
         if(complete):
             return True
             
         else: # return False if any key is missing, also
-              # searches for the missing key and adds it to a missing list 
-            
-            if('_id' not  in JsonToValidate):  
-                self.missing.append ('Missing id ')                
+              # searches for the missing key and adds it to a missing list                 
 
             if('status' not in JsonToValidate):  
                 self.missing.append ('Missing psb status')
 
             return False
 
+    def Status(self,data):
+        d = data['status']
+        statusList = ['A','a','I','i','V','v']
+        ok = (
+                d in statusList
+             )
+        if(not ok):
+            m = "status must be A or I or V,  not "
+            m += d
+            self.missing.append( m )
+        return ok
 
 class ManagePsb:
     def __init__(self,HostName,UserName,Password,DatabaseName):
         self.login = Login(HostName,UserName,Password)
         self.db = self.login.Client()[DatabaseName]
-        self.database = DatabaseName
-    
-    
+      
     def Filter(self,Collection, query=None,Key=None,Value=None,Operator=None,Projection=None):
         #query in the conndition to do the filter
         #projection is a data filter, to don't return all data 
@@ -91,34 +96,63 @@ class ManagePsb:
        if(Projection and Key and Value and Operator ):
            fil = self.db[Collection].find({ Key : { Operator:Value } } , Projection)
        
-       if(query == None and Key == None):      
+       if(query is None and Key is None ):      
             fil = self.db[Collection].find({},Projection)
+       
+       if(Projection is None and query is None):
+           fil = fil = self.db[Collection].find()
        return fil
         
-    def Update(self,CollectionName,DataToUpdate,query,Change):
-        result = self.db[CollectionName].update( query, { "$set" : Change })
-        if (result.modified_count > 0): 
+    def Update(self,CollectionName,query,Change):
+        Change['LastUpdated'] = datetime.datetime.utcnow()
+        result = self.db[CollectionName].update_one( query, { "$set" : Change })
+        if (result.matched_count > 0):
             return True 
         else:
             return False
-
-
+    def Delete(self,CollectionName,query):
+        a = self.db[CollectionName].count()
+        self.db[CollectionName].remove(query)
+        b = self.db[CollectionName].count()
+        if(a > b):
+            return True
+        else:
+            return False
     def Save(self,JsonToSave,CollectionName,ImageName):
         self.imgId = ImageName
         self.json = JsonToSave
         self.db[CollectionName].insert(
-                                    {   
-                                        'imageId':self.imgId                     ,
-                                        'latitude':self.json['latitude']         ,
-                                        'longitude':self.json['longitude']       ,
-                                        'status':'V'                              ,
-                                        'address':self.json['address']           ,
-                                        'neighborhood':self.json['neighborhood'] ,
-                                        'CreationDate':datetime.datetime.utcnow(),
-                                        'LastUpdated': datetime.datetime.utcnow()
-                                    }        
+                                         {   
+                                           'imageId':self.imgId                     ,
+                                           'latitude':self.json['latitude']         ,
+                                           'longitude':self.json['longitude']       ,
+                                           'status':'V'                             ,
+                                           'address':self.json['address']           ,
+                                           'neighborhood':self.json['neighborhood'] ,
+                                           'CreationDate':datetime.datetime.utcnow(),
+                                           'LastUpdated': datetime.datetime.utcnow()
+                                         }        
         
-                                 )
+                                      )
+
+
+class admin(ManagePsb):
+    
+    def hash_password(self, password):
+        self.password_hash = pwd_context.encrypt(password)
+        return self.password_hash
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password_hash)
+
+    def Save(self,CollectionName,username, password_hash):
+        self.db[CollectionName].insert(
+                                        {
+                                        'username':username,
+                                        'password':password_hash
+                                        }
+                                      )
+
 
 
 class ManageKeys: #to do operations in  dics list
@@ -133,9 +167,11 @@ class ManageKeys: #to do operations in  dics list
                 data[key] =  base + value[i]
                 i += 1 
         
-        else:       
+        else:
+            i = 0       
             for data in self.list :
-                data[key] = value
+                data[key] = value[i]
+                i += 1
 
     def Remove(self,key):
         for data in self.list :
@@ -192,8 +228,8 @@ class SaveImage:
 
 
 
-def OK():
-    return jsonify({'ok': True, 'message': 'psb saved successfully!'}), 200
+def OK(message,responsecode):
+    return jsonify({'ok': message}), responsecode
 
 def BAD(error,description,ResponseCode):
     return jsonify({error:description}), ResponseCode                

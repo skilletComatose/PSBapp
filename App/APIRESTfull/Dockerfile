@@ -1,6 +1,9 @@
 FROM python:3.6-buster 
 RUN pip3 install Flask
 RUN pip3 install pymongo
+RUN pip3 install passlib
+RUN pip3 install Flask-HTTPAuth
+
 RUN apt update && apt install nano
 RUN mkdir img
 

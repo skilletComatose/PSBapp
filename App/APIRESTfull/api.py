@@ -1,7 +1,10 @@
 from flask import Flask,request,jsonify
-from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys
+from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 from flask import send_from_directory,make_response
-#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys
+from flask_httpauth import HTTPBasicAuth
+from bson.objectid import ObjectId
+auth = HTTPBasicAuth()
+#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 #we will work with 3 status,
 #A(active)
 #I(inactive)
@@ -17,10 +20,14 @@ folder = app.config['UPLOAD_FOLDER']
 
 host = "mongo"
 user = "root"
-collection = "psbCollec"
+collection = "psb"
 password = "pass"
 databaseName = "psb_data"
 
+adminDatabase = "admin_data"
+Admincollection = "data"
+
+msg1 = "psb saved successfully!'"
 err1 = "Error with image : "
 err3 = "Image error >>> Possible errors"
 msg = " Error with image : missing image  "
@@ -79,7 +86,7 @@ def psbPost():
                 return BAD( err1, msg ,400) 
             
             
-            return OK()
+            return OK(msg1,201)
         
         else:
             return BAD( "error" ,Json.missing, 400 )
@@ -113,7 +120,7 @@ def psbPost():
         newInfo.PutId()                                  #add id to every document
         newInfo.Remove('imageId')
         return newInfo.LikeJson()
-           
+   
 
 @app.route("/api/psb/image/<ImageName>", methods=['GET'])
 def ImageResponse(ImageName):
@@ -121,7 +128,7 @@ def ImageResponse(ImageName):
         return send_from_directory(folder,filename, as_attachment=True)                                 
 
 
-@app.route("/api/psb/statistics")
+@app.route("/api/psb/statistics",methods=['GET'])
 def ReturnData():
     client = ManagePsb( host, user,password,databaseName )
     projection = {
@@ -132,3 +139,74 @@ def ReturnData():
     info = list(cursor)
     newInfo = ManageKeys(info)
     return newInfo.LikeJson()
+    
+
+@app.route('/api/admin', methods = ['GET','POST'])
+def new_user():
+    if( request.method == "POST"):
+        username = request.json.get('username')
+        Adminpass = request.json.get('password')
+        if username is None or Adminpass is None:
+            return BAD('error','bad request',400)
+    
+  
+        client = admin( host, user,password,adminDatabase )
+        projection = {
+                        'username':1
+                     }
+        cursor = client.Filter(Admincollection, Projection=projection)
+        c = cursor.count()
+        if(c == 0):
+            pwd = client.hash_password( password )
+            client.Save(Admincollection,username,pwd)
+            return OK('user saved',201)
+        else:
+            return BAD('error','only can exists one admin',409)
+
+    else:    
+        client = ManagePsb( host, user,password,databaseName )
+        cursor = client.Filter(collection)
+        info = list(cursor)
+        newInfo = ManageKeys(info)
+        for data in info:
+            data['_id'] = str( data['_id'] )
+
+        return newInfo.LikeJson()
+
+@app.route("/api/admin/<psb_id>", methods=['PUT','DELETE'])
+def deletePsb(psb_id):
+    req = request.get_json()
+    if (request.method == 'PUT'):
+        data = Admin_ReadJson(req)
+        dictionary = data.Decode()
+        if(data.Validate(dictionary) and data.Status( dictionary )):
+            change = {
+                    'status':dictionary['status']
+                     }
+            if(ObjectId.is_valid(psb_id)):
+                query = {
+                            '_id':ObjectId(psb_id)
+                        }      
+            else:
+                return BAD('error','incorect id',400)
+
+            client = admin( host, user,password,databaseName )
+            ok = client.Update(collection,query,change)
+            if(ok):
+                return OK('updated',200)
+            else:
+                return BAD('not updated',406)
+        else:
+            return BAD( "error",data.missing , 400 )     
+
+    if (request.method == 'DELETE'):
+         if(ObjectId.is_valid(psb_id)):
+            query = {
+                      '_id':ObjectId(psb_id)
+                    }
+            client = admin( host, user,password,databaseName )
+            ok = client.Delete(collection,query)                     
+            if(ok):
+                return OK('removed',200)
+            else:
+                return BAD('error','not deleted',406)
