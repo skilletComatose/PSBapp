@@ -1,2 +1,3 @@
-cd App/APIRESTfull/ 
-./deployApi.sh   
+cd App/APIRESTful/
+./deployApi.sh 
+  

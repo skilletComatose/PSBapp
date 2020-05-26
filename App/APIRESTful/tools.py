@@ -6,7 +6,7 @@ from flask import jsonify ,request
 from database import Login
 from werkzeug.utils import secure_filename
 from passlib.apps import custom_app_context as pwd_context
-#from App.APIRESTfull.database import Login
+#from App.APIRESTful.database import Login
 
                  
 class ReadJson: #read a Json object, turns it into a string and then into a dictionary

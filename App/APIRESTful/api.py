@@ -4,7 +4,7 @@ from flask import send_from_directory,make_response
 from flask_httpauth import HTTPBasicAuth
 from bson.objectid import ObjectId
 auth = HTTPBasicAuth()
-#from App.APIRESTfull.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
+#from App.APIRESTful.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 #we will work with 3 status,
 #A(active)
 #I(inactive)
@@ -200,7 +200,7 @@ def deletePsb(psb_id):
             return BAD( "error",data.missing , 400 )     
 
     if (request.method == 'DELETE'):
-         if(ObjectId.is_valid(psb_id)):
+        if(ObjectId.is_valid(psb_id)):
             query = {
                       '_id':ObjectId(psb_id)
                     }
@@ -209,4 +209,8 @@ def deletePsb(psb_id):
             if(ok):
                 return OK('removed',200)
             else:
-                return BAD('error','not deleted',406)
+                return BAD('error','not deleted, id not found',404)
+
+        else:
+            return BAD('error','incorect id',400)            
+    
