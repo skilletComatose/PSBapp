@@ -3,6 +3,7 @@ from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_Rea
 from flask import send_from_directory,make_response
 from flask_httpauth import HTTPBasicAuth
 from bson.objectid import ObjectId
+from config import *
 auth = HTTPBasicAuth()
 #from App.APIRESTful.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 #we will work with 3 status,
@@ -18,14 +19,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 folder = app.config['UPLOAD_FOLDER']
 
-host = "mongo"
-user = "root"
-collection = "psb"
-password = "pass"
-databaseName = "psb_data"
 
-adminDatabase = "admin_data"
-Admincollection = "data"
 
 msg1 = "psb saved successfully!'"
 err1 = "Error with image : "
@@ -63,7 +57,7 @@ def psbPost():
             img.Save( imageKey, folder ) # imagekey is the key with image was posted
             ImageId = img.name
             if( ImageId != None and ImageId != " " ):
-                client = ManagePsb( host, user, password, databaseName )
+                client = ManagePsb(credentials,databaseName)
                 query = {
                             "latitude" :dictionary["latitude"] ,
                             "longitude":dictionary["longitude"],
@@ -92,7 +86,7 @@ def psbPost():
             return BAD( "error" ,Json.missing, 400 )
     
     if(request.method == "GET"):
-        client = ManagePsb( host, user,password,databaseName )        
+        client = ManagePsb(credentials,databaseName)   
 
         key = 'status'
         value = [ 'A', 'a']
@@ -130,7 +124,7 @@ def ImageResponse(ImageName):
 
 @app.route("/api/psb/statistics",methods=['GET'])
 def ReturnData():
-    client = ManagePsb( host, user,password,databaseName )
+    client = ManagePsb(credentials,databaseName)
     projection = {
                     'imageId':0,
                         "_id":0
@@ -150,21 +144,21 @@ def new_user():
             return BAD('error','bad request',400)
     
   
-        client = admin( host, user,password,adminDatabase )
+        client = admin(credentials,adminDatabase )
         projection = {
                         'username':1
                      }
         cursor = client.Filter(Admincollection, Projection=projection)
         c = cursor.count()
         if(c == 0):
-            pwd = client.hash_password( password )
+            pwd = client.hash_password( Adminpass )
             client.Save(Admincollection,username,pwd)
             return OK('user saved',201)
         else:
             return BAD('error','only can exists one admin',409)
 
     else:    
-        client = ManagePsb( host, user,password,databaseName )
+        client = ManagePsb(credentials,databaseName)
         cursor = client.Filter(collection)
         info = list(cursor)
         newInfo = ManageKeys(info)
@@ -190,12 +184,12 @@ def deletePsb(psb_id):
             else:
                 return BAD('error','incorect id',400)
 
-            client = admin( host, user,password,databaseName )
+            client = admin( credentials,databaseName )
             ok = client.Update(collection,query,change)
             if(ok):
                 return OK('updated',200)
             else:
-                return BAD('not updated',406)
+                return BAD('error','not updated',406)
         else:
             return BAD( "error",data.missing , 400 )     
 
@@ -204,7 +198,7 @@ def deletePsb(psb_id):
             query = {
                       '_id':ObjectId(psb_id)
                     }
-            client = admin( host, user,password,databaseName )
+            client = admin(credentials, databaseName )
             ok = client.Delete(collection,query)                     
             if(ok):
                 return OK('removed',200)
@@ -213,4 +207,4 @@ def deletePsb(psb_id):
 
         else:
             return BAD('error','incorect id',400)            
-    
+

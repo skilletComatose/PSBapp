@@ -7,22 +7,7 @@ services:
     build: .
     ports:
       - "80:5000"
-    depends_on: 
-      - mongo
 
-    links: 
-      - mongo 
     
     volumes:
       - ./api:/data  
-
-  mongo:
-    container_name: db1
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: pass
-    
-    volumes:
-      - ./db:/data    

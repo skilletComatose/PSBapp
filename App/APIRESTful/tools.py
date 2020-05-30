@@ -83,8 +83,8 @@ class Admin_ReadJson(ReadJson):
         return ok
 
 class ManagePsb:
-    def __init__(self,HostName,UserName,Password,DatabaseName):
-        self.login = Login(HostName,UserName,Password)
+    def __init__(self, connectionString, DatabaseName):
+        self.login = Login(connectionString)
         self.db = self.login.Client()[DatabaseName]
       
     def Filter(self,Collection, query=None,Key=None,Value=None,Operator=None,Projection=None):
