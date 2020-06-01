@@ -112,15 +112,14 @@ def psbPost():
         info = list(cursor)
         
         #url = 'http://localhost/api/psb/image/'
-        key = 'photo id'
-        value =[]
+        #key = 'imageId'
+        #value =[]
         newInfo = ManageKeys(info)
-        for i in range( len(info) ):
-            value.append(info[i]['imageId'])
+        #for i in range( len(info) ):
+        #    value.append(info[i]['imageId'])
         
-        newInfo.Add( key , value ) #add to any document in the list (photo : url + image resource)
+        #newInfo.Add( key , value ) #add to any document in the list (photo : url + image resource)
         newInfo.PutId()                                  #add id to every document
-        newInfo.Remove('imageId')
         return newInfo.LikeJson()
    
 
