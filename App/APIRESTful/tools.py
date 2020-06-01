@@ -20,21 +20,27 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
 
     def Validate(self,JsonToValidate):
         # complete returns true if all data is present 
+        longitude      = not JsonToValidate['longitude'].strip() #return true if string is empty
+        latitude       = not JsonToValidate['latitude'].strip()
+        address        = not JsonToValidate['address'].strip() 
+        neighborhood   = not JsonToValidate['neighborhood'].strip()
+        
         complete = (
-            'longitude'    in JsonToValidate  and
-            'latitude'     in JsonToValidate  and       
-            'address'      in JsonToValidate  and
-            'neighborhood' in JsonToValidate  
+            'longitude'    in JsonToValidate  and not longitude     and
+            'latitude'     in JsonToValidate  and not latitude      and
+            'address'      in JsonToValidate  and not  address      and
+            'neighborhood' in JsonToValidate  and not neighborhood  
         )
         
         if(complete):
+            
             return True
             
         else: # return False if any key is missing, also
               # searches for the missing key and adds it to a missing list 
             
             if('address' not in JsonToValidate):  
-                self.missing.append ('Missing psb address')                
+                self.missing.append ('Missing psb address')                            
 
             if('neighborhood' not in JsonToValidate):  
                 self.missing.append ('Missing psb neighborhood')
@@ -44,6 +50,18 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
 
             if('longitude' not in JsonToValidate):  
                 self.missing.append ('Missing psb longitude')
+            
+            if(longitude):
+                self.missing.append('longitude is empty')
+
+            if(latitude):
+                self.missing.append('latitude is empty')
+
+            if(address):
+                self.missing.append('address is empty')
+
+            if(neighborhood ):
+                self.missing.append('neighborhood is empty')   
 
             return False
 
@@ -242,7 +260,7 @@ def Point(string):
     
 
 def ChangeName(filename):
-    x = datetime.datetime.now()
+    x =  datetime.datetime.utcnow()
     header = ""
     date = str(x)
     date = date.replace(" ","_")

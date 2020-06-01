@@ -3,13 +3,13 @@ from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_Rea
 from flask import send_from_directory,make_response
 from flask_httpauth import HTTPBasicAuth
 from bson.objectid import ObjectId
-from config import *
+from config import * # here are databases names, collections names, and credentials to do connection with Mongo Atlas
 auth = HTTPBasicAuth()
 #from App.APIRESTful.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 #we will work with 3 status,
 #A(active)
 #I(inactive)
-#V(validate , it's meaning that admin gotta to do a verification)
+#V(validate , it's meaning that admin have to do a verification)
 
 
 UPLOAD_FOLDER = '/img'
@@ -56,7 +56,8 @@ def psbPost():
             
             img.Save( imageKey, folder ) # imagekey is the key with image was posted
             ImageId = img.name
-            if( ImageId != None and ImageId != " " ):
+            ban = not ImageId.strip() #return true if string is empty
+            if( ImageId != None and not ban  ):
                 client = ManagePsb(credentials,databaseName)
                 query = {
                             "latitude" :dictionary["latitude"] ,
@@ -103,7 +104,7 @@ def psbPost():
         cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
         
-        url = 'http://127.0.0.1/api/psb/image/'
+        url = 'http://localhost/api/psb/image/'
         key = 'photo'
         value =[]
         newInfo = ManageKeys(info)
@@ -207,4 +208,8 @@ def deletePsb(psb_id):
 
         else:
             return BAD('error','incorect id',400)            
+
+
+
+
 
