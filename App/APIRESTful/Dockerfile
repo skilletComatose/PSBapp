@@ -3,6 +3,7 @@ RUN pip3 install Flask
 RUN pip3 install pymongo[srv] 
 RUN pip3 install passlib
 RUN pip3 install Flask-HTTPAuth
+RUN pip install -U flask-cors
 
 RUN apt update && apt install nano
 RUN mkdir img

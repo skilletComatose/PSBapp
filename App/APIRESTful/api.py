@@ -5,6 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 from bson.objectid import ObjectId
 from config import * # here are databases names, collections names, and credentials to do connection with Mongo Atlas
 auth = HTTPBasicAuth()
+from flask_cors import CORS, cross_origin
 #from App.APIRESTful.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 #we will work with 3 status,
 #A(active)
@@ -15,6 +16,8 @@ auth = HTTPBasicAuth()
 UPLOAD_FOLDER = '/img'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 folder = app.config['UPLOAD_FOLDER']
@@ -32,8 +35,12 @@ msg3 = "key are ok but, the image wasn't sent :("
 msg4 = "Key posted not in dict :("
 warning = "The psb sent is already registered, but thanks for send it"
 
+@app.route("/")
+def hello():
+    return "<H1>Running<H1/>"
 
 @app.route("/api/psb/", methods=['GET', 'POST'])
+@cross_origin()
 def psbPost():
     data = request.form.to_dict() #data is a dict with multipart/form-data
     dataKey = "psb"
@@ -104,14 +111,14 @@ def psbPost():
         cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
         
-        url = 'http://localhost/api/psb/image/'
-        key = 'photo'
+        #url = 'http://localhost/api/psb/image/'
+        key = 'photo id'
         value =[]
         newInfo = ManageKeys(info)
         for i in range( len(info) ):
             value.append(info[i]['imageId'])
         
-        newInfo.Add( key , value, url, concatenate=True ) #add to any document in the list (photo : url + image resource)
+        newInfo.Add( key , value ) #add to any document in the list (photo : url + image resource)
         newInfo.PutId()                                  #add id to every document
         newInfo.Remove('imageId')
         return newInfo.LikeJson()
