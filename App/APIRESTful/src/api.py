@@ -4,16 +4,17 @@ from flask import send_from_directory,make_response
 from flask_httpauth import HTTPBasicAuth
 from bson.objectid import ObjectId
 from config import * # here are databases names, collections names, and credentials to do connection with Mongo Atlas
+from msg import * #here ara all error message
 auth = HTTPBasicAuth()
 from flask_cors import CORS, cross_origin
-#from App.APIRESTful.tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
+
 #we will work with 3 status,
 #A(active)
 #I(inactive)
 #V(validate , it's meaning that admin have to do a verification)
 
 
-UPLOAD_FOLDER = '/img'
+UPLOAD_FOLDER = '/api/img'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
 cors = CORS(app)
@@ -23,17 +24,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 folder = app.config['UPLOAD_FOLDER']
 
 
-
-msg1 = "psb saved successfully!'"
-err1 = "Error with image : "
-err3 = "Image error >>> Possible errors"
-msg = " Error with image : missing image  "
-msg2 =  ["1. Field error :key posted not in dict"  , 
-         "2. Image field was send empty o.O"       , 
-         "3. neither image and key  weren't sent"]
-msg3 = "key are ok but, the image wasn't sent :("
-msg4 = "Key posted not in dict :("
-warning = "The psb sent is already registered, but thanks for send it"
 
 @app.route("/")
 def hello():
@@ -64,7 +54,7 @@ def psbPost():
             img.Save( imageKey, folder ) # imagekey is the key with image was posted
             ImageId = img.name
             ban = not ImageId.strip() #return true if string is empty
-            if( ImageId != None and not ban  ):
+            if( ImageId != None):
                 client = ManagePsb(credentials,databaseName)
                 query = {
                             "latitude" :dictionary["latitude"] ,
@@ -110,16 +100,8 @@ def psbPost():
 
         cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
-        
-        #url = 'http://localhost/api/psb/image/'
-        #key = 'imageId'
-        #value =[]
         newInfo = ManageKeys(info)
-        #for i in range( len(info) ):
-        #    value.append(info[i]['imageId'])
-        
-        #newInfo.Add( key , value ) #add to any document in the list (photo : url + image resource)
-        newInfo.PutId()                                  #add id to every document
+        newInfo.PutId()                               
         return newInfo.LikeJson()
    
 

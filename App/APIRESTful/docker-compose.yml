@@ -10,4 +10,4 @@ services:
 
     
     volumes:
-      - ../APIRESTful:/api
+      - ../APIRESTful/src:/api
