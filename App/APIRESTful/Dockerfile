@@ -5,6 +5,7 @@ RUN pip3 install passlib
 RUN pip3 install Flask-HTTPAuth
 RUN pip install -U flask-cors
 
+WORKDIR /api
 RUN apt update && apt install nano
 RUN mkdir img
 

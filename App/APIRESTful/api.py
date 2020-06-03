@@ -37,7 +37,7 @@ warning = "The psb sent is already registered, but thanks for send it"
 
 @app.route("/")
 def hello():
-    return "<H1>Running<H1/>"
+    return "<H1>Running :v<H1/>"
 
 @app.route("/api/psb/", methods=['GET', 'POST'])
 @cross_origin()
