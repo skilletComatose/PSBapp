@@ -237,7 +237,7 @@ class SaveImage:
 
 
     def Upload(self):            
-        if(self.name != None and self.name != ''):
+        if(self.name is not None):
             self.file.save(os.path.join(self.conf, self.name) )        
                 
 

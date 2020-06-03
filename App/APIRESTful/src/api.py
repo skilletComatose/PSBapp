@@ -13,7 +13,6 @@ from flask_cors import CORS, cross_origin
 #I(inactive)
 #V(validate , it's meaning that admin have to do a verification)
 
-
 UPLOAD_FOLDER = '/api/img'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
@@ -53,8 +52,8 @@ def psbPost():
             
             img.Save( imageKey, folder ) # imagekey is the key with image was posted
             ImageId = img.name
-            ban = not ImageId.strip() #return true if string is empty
-            if( ImageId != None):
+            #ban = not ImageId.strip() #return true if string is empty
+            if( ImageId is not None):
                 client = ManagePsb(credentials,databaseName)
                 query = {
                             "latitude" :dictionary["latitude"] ,
