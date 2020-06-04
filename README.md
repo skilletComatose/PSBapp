@@ -1,5 +1,5 @@
  
-# PSBapp   b 
+# PSBapp   
 Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
 
 ### Dependencias 
@@ -27,12 +27,17 @@ Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
     adminDatabase = <nombre de la base de datos donde se guardarán los datos del admin>
     
     Admincollection = <nombre de la collección donde se guardaran los datos del admin>
+
+    verysecret = <llave secreta, para hacer sifrados(cualquier string)>
     ```
   Dentro de esta misma ruta , crear el directorio img, allí se crea un volumen persistencia de datos,para las imagenes registradas en el contenedor 
-        ```
-        mkdir img
-        ```
-3. Una vez hecho esto usar el ejecutable `deploy.sh` que se encuentra en `PSBapp/`
+                ```
+                mkdir img
+                ```
+
+
+3. Una vez hecho esto usar el ejecutable `deploy.sh` que se encuentra en `PSBapp/`  
+       
         ```
         ./deploy.sh
         ```

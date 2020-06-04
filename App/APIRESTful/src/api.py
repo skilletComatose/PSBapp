@@ -1,12 +1,13 @@
 from flask import Flask,request,jsonify
 from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
 from flask import send_from_directory,make_response
-from flask_httpauth import HTTPBasicAuth
+from flask_httpauth import HTTPTokenAuth
 from bson.objectid import ObjectId
 from config import * # here are databases names, collections names, and credentials to do connection with Mongo Atlas
 from msg import * #here ara all error message
-auth = HTTPBasicAuth()
+auth =  HTTPTokenAuth(scheme='Bearer')
 from flask_cors import CORS, cross_origin
+
 
 #we will work with 3 status,
 #A(active)
@@ -19,9 +20,9 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['SECRET_KEY'] = verysecret #very secret is a secret key set it in config.py
 
 folder = app.config['UPLOAD_FOLDER']
-
 
 
 @app.route("/")
@@ -57,8 +58,7 @@ def psbPost():
                 client = ManagePsb(credentials,databaseName)
                 query = {
                             "latitude" :dictionary["latitude"] ,
-                            "longitude":dictionary["longitude"],
-                                         
+                            "longitude":dictionary["longitude"],                                    
                         }
                 Projection = {
                                 "status":1,
@@ -95,8 +95,6 @@ def psbPost():
                         "_id":0
                      } 
 
-        
-
         cursor = client.Filter(collection, Key=key, Value=value,  Operator=operator, Projection=Projection)
         info = list(cursor)
         newInfo = ManageKeys(info)
@@ -123,7 +121,12 @@ def ReturnData():
     return newInfo.LikeJson()
     
 
-@app.route('/api/admin', methods = ['GET','POST'])
+@auth.verify_token
+def verify_token(token):
+    token = admin.verify_token(token,verysecret)
+    return token
+
+@app.route('/api/admin', methods = ['POST'])
 def new_user():
     if( request.method == "POST"):
         username = request.json.get('username')
@@ -139,21 +142,25 @@ def new_user():
         cursor = client.Filter(Admincollection, Projection=projection)
         c = cursor.count()
         if(c == 0):
-            pwd = client.hash_password( Adminpass )
+            pwd = client.hash_password( Adminpass, app.config['SECRET_KEY'])
             client.Save(Admincollection,username,pwd)
             return OK('user saved',201)
         else:
             return BAD('error','only can exists one admin',409)
 
-    else:    
-        client = ManagePsb(credentials,databaseName)
-        cursor = client.Filter(collection)
-        info = list(cursor)
-        newInfo = ManageKeys(info)
-        for data in info:
-            data['_id'] = str( data['_id'] )
 
-        return newInfo.LikeJson()
+
+@app.route('/api/admin', methods = ['GET'])
+@auth.login_required
+def listpsb():
+    client = ManagePsb(credentials,databaseName)
+    cursor = client.Filter(collection)
+    info = list(cursor)
+    newInfo = ManageKeys(info)
+    for data in info:
+        data['_id'] = str( data['_id'] )
+
+    return newInfo.LikeJson()
 
 @app.route("/api/admin/<psb_id>", methods=['PUT','DELETE'])
 def deletePsb(psb_id):
@@ -163,11 +170,11 @@ def deletePsb(psb_id):
         dictionary = data.Decode()
         if(data.Validate(dictionary) and data.Status( dictionary )):
             change = {
-                    'status':dictionary['status']
+                      'status':dictionary['status']
                      }
             if(ObjectId.is_valid(psb_id)):
                 query = {
-                            '_id':ObjectId(psb_id)
+                          '_id':ObjectId(psb_id)
                         }      
             else:
                 return BAD('error','incorect id',400)
@@ -197,6 +204,30 @@ def deletePsb(psb_id):
             return BAD('error','incorect id',400)            
 
 
+@app.route('/api/login',methods=['GET','POST'])
+def login():
+    if (request.method == 'POST'):
 
+        username = request.json.get('username')
+        Adminpass = request.json.get('password')
+        if username is None or Adminpass is None:
+            return BAD('error','bad request',400)    
+
+        client = admin(credentials,adminDatabase )
+        projection = {
+                      'username':1
+                     }
+        pwd =  client.hash_password( Adminpass,app.config['SECRET_KEY'] )
+        query = {
+                  'username':username,
+                  'password':pwd
+                }
+        cursor = client.Filter(Admincollection, query=query,Projection=projection)
+        c = cursor.count()
+        if(c == 1):
+            token = client.encode_token( username,app.config['SECRET_KEY'] )
+            return token
+        else:
+            return BAD('error','Username or Password are incorrect '+ str(list(cursor)) + str(pwd),400)
 
 

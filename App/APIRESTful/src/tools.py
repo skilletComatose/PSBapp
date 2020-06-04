@@ -5,7 +5,8 @@ import pymongo
 from flask import jsonify ,request
 from database import Login
 from werkzeug.utils import secure_filename
-from passlib.apps import custom_app_context as pwd_context
+import jwt
+
 
 
                  
@@ -156,12 +157,39 @@ class ManagePsb:
 
 class admin(ManagePsb):
     
-    def hash_password(self, password):
-        self.password_hash = pwd_context.encrypt(password)
+    def hash_password(self, password,SECRET_KEY):
+        a = hash(password)
+        b = hash(SECRET_KEY) 
+        self.password_hash = str(a) + str(b)
         return self.password_hash
 
-    def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
+    
+    def encode_token(self,username,SECRET_KEY):
+        try:
+            payload = {
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),# exp: expiration date of the token
+                        'iat': datetime.datetime.utcnow(),# iat: the time the token is generated
+                        'sub': username # sub: the subject of the token (the user whom it identifies)
+                    }
+            token = jwt.encode(
+                                payload,
+                                SECRET_KEY,
+                                algorithm='HS256'
+                            )
+            return jsonify({ 'token':token.decode('utf-8') })
+        except Exception as e:
+            return e
+    @staticmethod
+    def verify_token(token,SECRET_KEY):
+        try:
+            payload = jwt.decode(token, SECRET_KEY )
+            return payload['sub']
+        
+        except jwt.ExpiredSignatureError:
+            return 'Signature expired. Please log in again.'
+        
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'                
 
     def Save(self,CollectionName,username, password_hash):
         self.db[CollectionName].insert(
