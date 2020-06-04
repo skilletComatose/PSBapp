@@ -6,6 +6,8 @@ from flask import jsonify ,request
 from database import Login
 from werkzeug.utils import secure_filename
 import jwt
+import bcrypt
+from config import salt
 
 
 
@@ -158,16 +160,26 @@ class ManagePsb:
 class admin(ManagePsb):
     
     def hash_password(self, password,SECRET_KEY):
-        a = hash(password)
-        b = hash(SECRET_KEY) 
-        self.password_hash = str(a) + str(b)
+        a = password
+        b = SECRET_KEY
+        a = str(a) + str(b)
+        a = a.encode()
+        phash = bcrypt.hashpw( a, salt )
+        self.password_hash = phash
         return self.password_hash
 
+    def chech_hash(self,password,hash_toCheck,SECRET_KEY):
+        password += SECRET_KEY
+        password = password.encode()
+        if (bcrypt.checkpw( password, hash_toCheck )):
+            return True
+        else:
+            return False
     
     def encode_token(self,username,SECRET_KEY):
         try:
             payload = {
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),# exp: expiration date of the token
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=35),# exp: expiration date of the token
                         'iat': datetime.datetime.utcnow(),# iat: the time the token is generated
                         'sub': username # sub: the subject of the token (the user whom it identifies)
                     }

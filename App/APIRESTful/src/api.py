@@ -162,6 +162,7 @@ def listpsb():
 
     return newInfo.LikeJson()
 
+@auth.login_required
 @app.route("/api/admin/<psb_id>", methods=['PUT','DELETE'])
 def deletePsb(psb_id):
     req = request.get_json()
@@ -215,19 +216,22 @@ def login():
 
         client = admin(credentials,adminDatabase )
         projection = {
-                      'username':1
+                      'password':1,
+                       '_id':0 
                      }
-        pwd =  client.hash_password( Adminpass,app.config['SECRET_KEY'] )
+        
         query = {
-                  'username':username,
-                  'password':pwd
+                  'username':username
                 }
         cursor = client.Filter(Admincollection, query=query,Projection=projection)
-        c = cursor.count()
-        if(c == 1):
+        cursor = list(cursor)
+        try:
+            hashpw = cursor[0]['password']
+        except:
+            return BAD('error','cursor do not work',400)
+        
+        if(client.chech_hash( Adminpass, hashpw,app.config['SECRET_KEY'])):
             token = client.encode_token( username,app.config['SECRET_KEY'] )
             return token
         else:
-            return BAD('error','Username or Password are incorrect '+ str(list(cursor)) + str(pwd),400)
-
-
+            return BAD('error','Username or Password are incorrect '+str(hashpw) ,400)
