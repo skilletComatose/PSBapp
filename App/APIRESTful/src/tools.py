@@ -97,9 +97,7 @@ class Admin_ReadJson(ReadJson):
     def Status(self,data):
         d = data['status']
         statusList = ['A','a','I','i','V','v']
-        ok = (
-                d in statusList
-             )
+        ok = (d in statusList)    
         if(not ok):
             m = "status must be A or I or V,  not "
             m += d

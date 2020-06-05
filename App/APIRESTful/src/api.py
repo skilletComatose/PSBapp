@@ -1,14 +1,11 @@
-from flask import Flask,request,jsonify
+from config import credentials,collection,databaseName,adminDatabase,Admincollection,verysecret,ALLOWED_EXTENSIONS,CORS_HEADERS,UPLOAD_FOLDER                                 
 from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson,chech_token
 from flask import send_from_directory,make_response
-#from flask_httpauth import HTTPTokenAuth
-from bson.objectid import ObjectId
-from config import credentials,collection,databaseName,adminDatabase,Admincollection,verysecret                                 
-from msg import * #here ara all error message
-import datetime
-
-#auth =  HTTPTokenAuth(scheme='Bearer',realm=auth_failed().message() )
 from flask_cors import CORS, cross_origin
+from flask import Flask,request,jsonify
+from bson.objectid import ObjectId
+import datetime
+from msg import * #here are all messages
 
 
 #we will work with 3 status,
@@ -16,22 +13,18 @@ from flask_cors import CORS, cross_origin
 #I(inactive)
 #V(validate , it's meaning that admin have to do a verification)
 
-UPLOAD_FOLDER = '/api/img'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_HEADERS'] = CORS_HEADERS
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = verysecret #very secret is a secret key set it in config.py
 
 folder = app.config['UPLOAD_FOLDER']
 
-
-
-
 @app.route("/")
 def hello():
-    return "<H1>Running ;v<H1/>"
+    return hello1
 
 @app.route("/api/psb/", methods=['GET', 'POST'])
 @cross_origin()
@@ -76,15 +69,15 @@ def psbPost():
                     img.Upload()
                 
                 else:
-                   return BAD ("Warning",warning,409)                
+                   return BAD (msg5, warning, 409)                
             else:
                 return BAD( err1, msg ,400) 
             
             
-            return OK(msg1,201)
+            return OK(msg1, 201)
         
         else:
-            return BAD( "error" ,Json.missing, 400 )
+            return BAD( msg6 ,Json.missing, 400 )
     
     if(request.method == "GET"):
         client = ManagePsb(credentials,databaseName)   
@@ -109,8 +102,10 @@ def psbPost():
 @app.route("/api/psb/image/<ImageName>", methods=['GET'])
 def ImageResponse(ImageName):
         filename = ImageName
-        return send_from_directory(folder,filename, as_attachment=True)                                 
-
+        try:
+            return send_from_directory(folder,filename, as_attachment=True)                                 
+        except:
+            BAD(err3, msg7, 404)
 
 @app.route("/api/psb/statistics",methods=['GET'])
 def ReturnData():
@@ -134,21 +129,20 @@ def new_user():
         username = request.json.get('username')
         Adminpass = request.json.get('password')
         if username is None or Adminpass is None:
-            return BAD('error','bad request',400)
+            return BAD(err4, msg8, 400)
     
   
         client = admin(credentials,adminDatabase )
-        projection = {
-                        'username':1
-                     }
+        projection = { 'username':1 }
+                        
         cursor = client.Filter(Admincollection, Projection=projection)
         c = cursor.count()
         if(c == 0):
             pwd = client.hash_password( Adminpass, app.config.get('SECRET_KEY'))
             client.Save(Admincollection,username,pwd)
-            return OK('user saved',201)
+            return OK(msg9, 201)
         else:
-            return BAD('error','only can exists one admin',409)
+            return BAD(err4, msg10, 409)
 
 
 
@@ -157,7 +151,7 @@ def new_user():
 def listpsb():
     ok = chech_token(app.config.get('SECRET_KEY'))
     if False in ok:
-        return BAD('auth failed',ok[1],ok[2])#ok[2] is response code
+        return BAD(err5, ok[1], ok[2])#ok[2] is response code
 
     client = ManagePsb(credentials,databaseName)
     cursor = client.Filter(collection)
@@ -173,46 +167,44 @@ def listpsb():
 def deletePsb(psb_id):
     ok = chech_token(app.config.get('SECRET_KEY'))
     if False in ok:
-        return BAD('auth failed',ok[1],ok[2]) #ok[1] return message obtained from validation and ok[2] return response code
+        return BAD(err5, ok[1], ok[2]) #ok[1] return message obtained from validation and ok[2] return response code
 
     req = request.get_json()
     if (request.method == 'PUT'):
         data = Admin_ReadJson(req)
         dictionary = data.Decode()
         if(data.Validate(dictionary) and data.Status( dictionary )):
-            change = {
-                      'status':dictionary['status']
-                     }
+            change = { 'status':dictionary['status'] }
+                      
             if(ObjectId.is_valid(psb_id)):
-                query = {
-                          '_id':ObjectId(psb_id)
-                        }      
+                query = { '_id':ObjectId(psb_id) }
+                          
             else:
-                return BAD('error','incorect id',400)
+                return BAD(err4, msg11, 400)
 
             client = admin( credentials,databaseName )
             ok = client.Update(collection,query,change)
             if(ok):
-                return OK('updated',200)
+                return OK(msg12, 200)
             else:
-                return BAD('error','not updated',406)
+                return BAD(err4, msg13, 406)
         else:
-            return BAD( "error",data.missing , 400 )     
+            return BAD(msg6, data.missing , 400 )     
 
     if (request.method == 'DELETE'):
         if(ObjectId.is_valid(psb_id)):
-            query = {
-                      '_id':ObjectId(psb_id)
-                    }
+            
+            query = { '_id':ObjectId(psb_id) }
+                              
             client = admin(credentials, databaseName )
             ok = client.Delete(collection,query)                     
             if(ok):
-                return OK('removed',200)
+                return OK(msg14, 200)
             else:
-                return BAD('error','not deleted, id not found',404)
+                return BAD(msg4,msg15, 404)
 
         else:
-            return BAD('error','incorect id',400)            
+            return BAD(msg4, msg16, 400)            
 
 
 @app.route('/api/login',methods=['POST'])
@@ -222,7 +214,7 @@ def login():
         username = request.json.get('username')
         Adminpass = request.json.get('password')
         if username is None or Adminpass is None:
-            return BAD('error','bad request',400)    
+            return BAD(err4, msg8, 400)    
 
         client = admin(credentials,adminDatabase )
         projection = {
@@ -230,34 +222,31 @@ def login():
                        '_id':0 
                      }
         
-        query = {
-                  'username':username
-                }
+        query = { 'username':username }
+                                  
         cursor = client.Filter(Admincollection, query=query,Projection=projection)
         cursor = list(cursor)
         try:
             hashpw = cursor[0]['password']
         except:
-            return BAD('error','cursor do not work',400)
+            return BAD(msg3, msg17, 400)
         
-        if(client.chech_hash( Adminpass, hashpw,app.config.get('SECRET_KEY'))):
+        if(client.chech_hash( Adminpass, hashpw, app.config.get('SECRET_KEY') ) ):
             token = client.encode_auth_token(username,app.config.get('SECRET_KEY'))
-            response = {
-                        'auth_token': token.decode()
-                       }
+            response = { 'auth_token': token.decode() }
             return OK(response,200)
         else:
-            return BAD('error','Username or Password are incorrect ' ,400)
+            return BAD(err4, msg17 ,400)
 
 @app.route('/api/logout',methods=['GET'])
 def logout():
     ok = chech_token(app.config.get('SECRET_KEY'))
     if False in ok:
-        return BAD('auth failed',ok[1],ok[2])#ok[2] return response code  #ok[3] return token already validated
+        return BAD(err5, ok[1], ok[2])#ok[1] return message, ok[2] return response code  #ok[3] return token already validated
     invalid_token = {
                         'token':ok[3],
                         'time':datetime.datetime.utcnow()
                     }
     client = admin(credentials,adminDatabase )
-    client.Black_list('blacklist',invalid_token)
-    return OK({'status':'logout'},200)
+    client.Black_list(blacklistName, invalid_token)
+    return OK(logout1, 200)
