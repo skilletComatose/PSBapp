@@ -21,21 +21,25 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
         return data
 
     def Validate(self,JsonToValidate):
-        # complete returns true if all data is present 
-        longitude      = not JsonToValidate['longitude'].strip() #return true if string is empty
-        latitude       = not JsonToValidate['latitude'].strip()
-        address        = not JsonToValidate['address'].strip() 
-        neighborhood   = not JsonToValidate['neighborhood'].strip()
-        
+        # complete returns true if all data is present         
+        longitude    = None
+        latitude     = None
+        address      = None
+        neighborhood = None
+
         complete = (
-            'longitude'    in JsonToValidate  and not longitude     and
-            'latitude'     in JsonToValidate  and not latitude      and
-            'address'      in JsonToValidate  and not  address      and
-            'neighborhood' in JsonToValidate  and not neighborhood  
+            'longitude'    in JsonToValidate   and
+            'latitude'     in JsonToValidate   and
+            'address'      in JsonToValidate   and
+            'neighborhood' in JsonToValidate    
         )
         
         if(complete):
-            
+            longitude      = not JsonToValidate['longitude'].strip() #return true if string is empty
+            latitude       = not JsonToValidate['latitude'].strip()
+            address        = not JsonToValidate['address'].strip() 
+            neighborhood   = not JsonToValidate['neighborhood'].strip()
+
             return True
             
         else: # return False if any key is missing, also
