@@ -8,6 +8,12 @@ Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
 1. [Docker](https://docs.docker.com/)
 2. [Docker-Compose](https://docs.docker.com/compose/)
 
+### Información
+* [Acerca la app](https://github.com/skilletComatose/PSBapp/blob/master/App/APIRESTful/docs.md)
+* [Front-end](https://github.com/PabloArrietaL/psb-leaflet-angular)
+* [Framework usado en la API](https://flask.palletsprojects.com/en/1.1.x/)
+* [Seguridad implementada en la API](https://openwebinars.net/blog/que-es-json-web-token-y-como-funciona/)
+
 ## Inicio
 1. Decargar el repositorio, ingresar a este y darle permiso de ejecución a los ejecutables (.sh)
 
@@ -18,7 +24,7 @@ Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
         chmod +x App/APIRESTful/deployApi.sh
          
 
-2. Crear un archivo llamado `config.py` , dentro de `App/APIRESTful/src `donde deberá incluir las siguientes variables :
+2. Crear un archivo de configuración llamado  `config.py` , dentro de `App/APIRESTful/src `donde deberá incluir las siguientes variables :
     
             credentials = <string de conexión de mongo atlas>
         

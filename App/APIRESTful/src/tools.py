@@ -179,7 +179,7 @@ class admin(ManagePsb):
     def encode_auth_token(self,username,SECRET_KEY):
         try:
             payload = {
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=5),# exp: expiration date of the token
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),# exp: expiration date of the token
                         'iat': datetime.datetime.utcnow(),# iat: the time the token is generated
                         'sub': username # sub: the subject of the token (the user whom it identifies)
                     }
@@ -200,12 +200,12 @@ class admin(ManagePsb):
         
         except jwt.ExpiredSignatureError:
             m = 'Signature expired. Please log in again.'
-            resp = [False,m,401]   
+            resp = [False,m,403]   
             return resp
         
         except jwt.InvalidTokenError:
             m = 'Invalid token. Please log in again.'
-            resp = [False,m,401]
+            resp = [False,m,403]
             return resp                
 
     
@@ -217,7 +217,10 @@ class admin(ManagePsb):
                                         }
                                       )
 
+    def Black_list(self,CollectionName,token):
+        self.db[CollectionName].insert(token)
 
+                                      
 
 class ManageKeys: #to do operations in  dics list
     def __init__(self,Lis_Of_dict):
@@ -289,10 +292,20 @@ class SaveImage:
 
 
 
-def get_header(SECRET_KEY):
+def chech_token(SECRET_KEY):
     auth_token = request.headers.get('Authorization')    
     if(auth_token):
+        client = admin(credentials,adminDatabase )
+        query = {'token':auth_token}
+        projec = {'_id':0}
+        cursor = client.Filter('blacklist',query=query,Projection=projec)
+        c = cursor.count()
+        if(c == 1):
+            m = "token in blacklist, please log in "
+            resp = [False,m,403,auth_token]
+            return resp
         resp = admin.decode_auth_token(auth_token,SECRET_KEY)
+        resp.append(auth_token)
         return resp
     else:
         m = 'missing token'

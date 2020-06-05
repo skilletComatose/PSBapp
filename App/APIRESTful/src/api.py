@@ -1,10 +1,11 @@
 from flask import Flask,request,jsonify
-from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson,get_header
+from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson,chech_token
 from flask import send_from_directory,make_response
 #from flask_httpauth import HTTPTokenAuth
 from bson.objectid import ObjectId
 from config import credentials,collection,databaseName,adminDatabase,Admincollection,verysecret                                 
 from msg import * #here ara all error message
+import datetime
 
 #auth =  HTTPTokenAuth(scheme='Bearer',realm=auth_failed().message() )
 from flask_cors import CORS, cross_origin
@@ -127,6 +128,7 @@ def ReturnData():
     
 
 @app.route('/api/admin', methods = ['POST'])
+@cross_origin()
 def new_user():
     if( request.method == "POST"):
         username = request.json.get('username')
@@ -151,8 +153,9 @@ def new_user():
 
 
 @app.route('/api/admin', methods = ['GET'])
+@cross_origin()
 def listpsb():
-    ok = get_header(app.config.get('SECRET_KEY'))
+    ok = chech_token(app.config.get('SECRET_KEY'))
     if False in ok:
         return BAD('auth failed',ok[1],ok[2])#ok[2] is response code
 
@@ -168,9 +171,9 @@ def listpsb():
 
 @app.route("/api/admin/<psb_id>", methods=['PUT','DELETE'])
 def deletePsb(psb_id):
-    ok = get_header(app.config.get('SECRET_KEY'))
+    ok = chech_token(app.config.get('SECRET_KEY'))
     if False in ok:
-        return BAD('auth failed',ok[1],ok[2])#ok[2] is response code
+        return BAD('auth failed',ok[1],ok[2]) #ok[1] return message obtained from validation and ok[2] return response code
 
     req = request.get_json()
     if (request.method == 'PUT'):
@@ -212,7 +215,7 @@ def deletePsb(psb_id):
             return BAD('error','incorect id',400)            
 
 
-@app.route('/api/login',methods=['GET','POST'])
+@app.route('/api/login',methods=['POST'])
 def login():
     if (request.method == 'POST'):
 
@@ -245,3 +248,16 @@ def login():
             return OK(response,200)
         else:
             return BAD('error','Username or Password are incorrect ' ,400)
+
+@app.route('/api/logout',methods=['GET'])
+def logout():
+    ok = chech_token(app.config.get('SECRET_KEY'))
+    if False in ok:
+        return BAD('auth failed',ok[1],ok[2])#ok[2] return response code  #ok[3] return token already validated
+    invalid_token = {
+                        'token':ok[3],
+                        'time':datetime.datetime.utcnow()
+                    }
+    client = admin(credentials,adminDatabase )
+    client.Black_list('blacklist',invalid_token)
+    return OK({'status':'logout'},200)
