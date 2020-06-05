@@ -3,12 +3,11 @@ import datetime
 import os
 import pymongo
 from flask import jsonify ,request
-from database import Login
+from database import Login 
 from werkzeug.utils import secure_filename
 import jwt
 import bcrypt
-from config import salt
-
+from config import salt,credentials,adminDatabase,Admincollection
 
 
                  
@@ -157,6 +156,7 @@ class ManagePsb:
                                       )
 
 
+
 class admin(ManagePsb):
     
     def hash_password(self, password,SECRET_KEY):
@@ -176,33 +176,39 @@ class admin(ManagePsb):
         else:
             return False
     
-    def encode_token(self,username,SECRET_KEY):
+    def encode_auth_token(self,username,SECRET_KEY):
         try:
             payload = {
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=35),# exp: expiration date of the token
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=5),# exp: expiration date of the token
                         'iat': datetime.datetime.utcnow(),# iat: the time the token is generated
                         'sub': username # sub: the subject of the token (the user whom it identifies)
                     }
-            token = jwt.encode(
+            return jwt.encode(
                                 payload,
                                 SECRET_KEY,
                                 algorithm='HS256'
-                            )
-            return jsonify({ 'token':token.decode('utf-8') })
+                             )
+            
         except Exception as e:
             return e
     @staticmethod
-    def verify_token(token,SECRET_KEY):
+    def decode_auth_token(token,SECRET_KEY):
         try:
             payload = jwt.decode(token, SECRET_KEY )
-            return payload['sub']
+            resp = [True,payload['sub'],200]
+            return resp
         
         except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
+            m = 'Signature expired. Please log in again.'
+            resp = [False,m,401]   
+            return resp
         
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'                
+            m = 'Invalid token. Please log in again.'
+            resp = [False,m,401]
+            return resp                
 
+    
     def Save(self,CollectionName,username, password_hash):
         self.db[CollectionName].insert(
                                         {
@@ -283,11 +289,19 @@ class SaveImage:
 
 
 
-
+def get_header(SECRET_KEY):
+    auth_token = request.headers.get('Authorization')    
+    if(auth_token):
+        resp = admin.decode_auth_token(auth_token,SECRET_KEY)
+        return resp
+    else:
+        m = 'missing token'
+        resp = [False,m,400]
+        return resp
 
 
 def OK(message,responsecode):
-    return jsonify({'ok': message}), responsecode
+    return jsonify(message), responsecode
 
 def BAD(error,description,ResponseCode):
     return jsonify({error:description}), ResponseCode                
@@ -297,7 +311,8 @@ def Point(string):
         if(string[i]=="."):
             return i
             
-    
+
+                     
 
 def ChangeName(filename):
     x =  datetime.datetime.utcnow()

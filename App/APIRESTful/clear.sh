@@ -4,9 +4,8 @@ docker stop api
 docker stop db1
 echo "--------------------------- "
 
-echo "\n >> Removing containers "
+echo "\n >> Removing api container "
 docker rm api
-docker rm db1
 echo  "------------------------"
 
 echo "\n >> Listing containers "

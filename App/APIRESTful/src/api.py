@@ -1,11 +1,12 @@
 from flask import Flask,request,jsonify
-from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson
+from tools import ReadJson,ManagePsb,OK,BAD,SaveImage,ManageKeys,admin,Admin_ReadJson,get_header
 from flask import send_from_directory,make_response
-from flask_httpauth import HTTPTokenAuth
+#from flask_httpauth import HTTPTokenAuth
 from bson.objectid import ObjectId
-from config import * # here are databases names, collections names, and credentials to do connection with Mongo Atlas
+from config import credentials,collection,databaseName,adminDatabase,Admincollection,verysecret                                 
 from msg import * #here ara all error message
-auth =  HTTPTokenAuth(scheme='Bearer')
+
+#auth =  HTTPTokenAuth(scheme='Bearer',realm=auth_failed().message() )
 from flask_cors import CORS, cross_origin
 
 
@@ -23,6 +24,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = verysecret #very secret is a secret key set it in config.py
 
 folder = app.config['UPLOAD_FOLDER']
+
+
 
 
 @app.route("/")
@@ -121,10 +124,7 @@ def ReturnData():
     return newInfo.LikeJson()
     
 
-@auth.verify_token
-def verify_token(token):
-    token = admin.verify_token(token,verysecret)
-    return token
+    
 
 @app.route('/api/admin', methods = ['POST'])
 def new_user():
@@ -142,7 +142,7 @@ def new_user():
         cursor = client.Filter(Admincollection, Projection=projection)
         c = cursor.count()
         if(c == 0):
-            pwd = client.hash_password( Adminpass, app.config['SECRET_KEY'])
+            pwd = client.hash_password( Adminpass, app.config.get('SECRET_KEY'))
             client.Save(Admincollection,username,pwd)
             return OK('user saved',201)
         else:
@@ -151,8 +151,11 @@ def new_user():
 
 
 @app.route('/api/admin', methods = ['GET'])
-@auth.login_required
 def listpsb():
+    ok = get_header(app.config.get('SECRET_KEY'))
+    if False in ok:
+        return BAD('auth failed',ok[1],ok[2])#ok[2] is response code
+
     client = ManagePsb(credentials,databaseName)
     cursor = client.Filter(collection)
     info = list(cursor)
@@ -162,9 +165,13 @@ def listpsb():
 
     return newInfo.LikeJson()
 
-@auth.login_required
+
 @app.route("/api/admin/<psb_id>", methods=['PUT','DELETE'])
 def deletePsb(psb_id):
+    ok = get_header(app.config.get('SECRET_KEY'))
+    if False in ok:
+        return BAD('auth failed',ok[1],ok[2])#ok[2] is response code
+
     req = request.get_json()
     if (request.method == 'PUT'):
         data = Admin_ReadJson(req)
@@ -230,8 +237,11 @@ def login():
         except:
             return BAD('error','cursor do not work',400)
         
-        if(client.chech_hash( Adminpass, hashpw,app.config['SECRET_KEY'])):
-            token = client.encode_token( username,app.config['SECRET_KEY'] )
-            return token
+        if(client.chech_hash( Adminpass, hashpw,app.config.get('SECRET_KEY'))):
+            token = client.encode_auth_token(username,app.config.get('SECRET_KEY'))
+            response = {
+                        'auth_token': token.decode()
+                       }
+            return OK(response,200)
         else:
-            return BAD('error','Username or Password are incorrect '+str(hashpw) ,400)
+            return BAD('error','Username or Password are incorrect ' ,400)
