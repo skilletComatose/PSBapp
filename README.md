@@ -49,9 +49,9 @@ Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
 * nota : La salt es única solo debes generarla una vez y guardar ese resultado en la variable, porque de esta forma (`salt = bcrypt.gensalt()`) se generará una diferente cada vez .
 
 
- Dentro de esta misma ruta , crear el directorio `img/`, allí se crea un volumen persistencia de datos,para las imágenes registradas en el contenedor
+Dentro de esta misma ruta , crear el directorio `img/`, allí se crea un volumen persistencia de datos,para las imágenes registradas en el contenedor
               
-          mkdir img
+     mkdir img
               
       
               
@@ -62,10 +62,12 @@ Para este  proyecto se utiliza el sistema operativo `Ubuntu:18.04`
        ./deploy.sh
 
 
-Una vez ejecutado el comando anterior se debe esperar a que aparezca la siguiente imagen 
-        
-                
+Una vez ejecutado el comando anterior se debe esperar a que aparezca la siguiente imagen.         !
+
+![deploy image](https://github.com/skilletComatose/PSBapp/blob/master/img/deploy.jpeg)                
 
 
 
+4. Verificar que la API está corriendo, para esto se ingresa a la ruta ¨http://localhost/¨, debería aparecer el siguiente mensaje
 
+![localhost image](https://github.com/skilletComatose/PSBapp/blob/master/img/running.jpeg)
