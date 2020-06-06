@@ -68,6 +68,6 @@ Una vez ejecutado el comando anterior se debe esperar a que aparezca la siguient
 
 
 
-4. Verificar que la API está corriendo, para esto se ingresa a la ruta ¨http://localhost/¨, debería aparecer el siguiente mensaje
+4. Verificar que la API está corriendo, para esto se ingresa a la ruta http://localhost/, debería aparecer el siguiente mensaje
 
 ![localhost image](https://github.com/skilletComatose/PSBapp/blob/master/img/running.jpeg)

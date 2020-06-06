@@ -170,7 +170,7 @@ class admin(ManagePsb):
         self.password_hash = phash
         return self.password_hash
 
-    def chech_hash(self,password,hash_toCheck,SECRET_KEY):
+    def check_hash(self,password,hash_toCheck,SECRET_KEY):
         password += SECRET_KEY
         password = password.encode()
         if (bcrypt.checkpw( password, hash_toCheck )):
@@ -294,8 +294,8 @@ class SaveImage:
 
 
 
-def chech_token(SECRET_KEY):
-    auth_token = request.headers.get('Authorization')    
+def check_token(SECRET_KEY):
+    auth_token = request.headers.get('Authorization')
     if(auth_token):
         client = admin(credentials,adminDatabase )
         query = {'token':auth_token}

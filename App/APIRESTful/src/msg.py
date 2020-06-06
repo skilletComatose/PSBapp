@@ -1,4 +1,3 @@
-hello1 = '<H1>Hello, API is running ;v<H1/>'
 
 err1 = 'Error_with_image'
 
@@ -33,7 +32,7 @@ msg9 = 'user saved'
 
 msg10 = 'only can exists one admin'
 
-msg11 = 'incorect id'
+msg11 = 'incorrect id'
 
 msg12 = 'updated'
 
@@ -43,9 +42,13 @@ msg14 = 'removed'
 
 msg15 = 'not deleted because id not found'
 
-msg16 = 'incorect id'
+msg16 = 'incorrect id'
 
 msg17 = 'Username or Password are incorrect '
+
+msg18 = 'Missing json '
+
+msg19 = 'Missing  multipart/form-data'
 
 warning = 'The psb sent is already registered, but thanks for send it'
 
