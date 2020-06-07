@@ -300,7 +300,7 @@ class login(Resource):
         try:
             hashpw = cursor[0]['password']
         except:
-            return BAD(msg3, msg17, 400)
+            return BAD(err5, msg17, 400)
 
         if(client.check_hash(Adminpass, hashpw, app.config.get('SECRET_KEY'))):
             token = client.encode_auth_token( username, app.config.get('SECRET_KEY') )                
