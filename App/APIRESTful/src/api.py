@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_restx import Api,Resource, fields,reqparse
 from bson.objectid import ObjectId
 from swagger import description,title,service
-from swagger_models import psb_post_parameters,admin_post,admin_get
+from swagger_models import psb_post_parameters,admin_post,admin_get,admin_put
 import datetime
 from msg import *  # here are all messages
 
@@ -203,7 +203,8 @@ class UpdateStatus(Resource):
     @api.response(400,E400v3)
     @api.response(403,E403)
     @api.response(406,msg13)
-    @api.expect(admin_get)
+
+    @api.expect(admin_put)
     def put(self,psb_id):
         """Update psb status"""
         ok = check_token(app.config.get('SECRET_KEY'))
@@ -216,6 +217,9 @@ class UpdateStatus(Resource):
         
         data = Admin_ReadJson(req)
         dictionary = data.Decode()
+        if(dictionary is False):
+            return BAD(json_error,msg18,400)
+        
         if(data.Validate(dictionary) and data.Status(dictionary)):
             change = {'status': dictionary['status']}
 
