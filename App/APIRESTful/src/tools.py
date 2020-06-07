@@ -17,7 +17,10 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
         self.missing = []
     
     def Decode(self):
-        data = json.loads(self.json)
+        try:
+            data = json.loads(self.json)
+        except:
+            return False
         return data
 
     def Validate(self,JsonToValidate):

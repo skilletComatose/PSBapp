@@ -32,7 +32,7 @@ model = {
         }
 model1 = api.model(name,model)
 
-#@app.route("/api/psb/", methods=['GET', 'POST'])
+
 @demo.route('/psb/')
 class psb(Resource):
     @cross_origin(Resource)
@@ -45,15 +45,15 @@ class psb(Resource):
         data = request.form.to_dict()  # data is a dict with multipart/form-data
         if(not data):
             return BAD(err4,msg19,400 )
-        dataKey = "psb" # datakey is the json key where psb information's are (psb is a key in data dict     )
-        imageKey = "img" # imagekey is the key with image was posted
-
+        
         if dataKey not in data:
             return BAD(err4, msg4, 400)
         
         d = data[dataKey]
         Json = ReadJson(d)
         dictionary = Json.Decode()
+        if(dictionary is False):
+            return BAD(json_error,msg18,400)
         if(Json.Validate(dictionary)):
             img = SaveImage(ALLOWED_EXTENSIONS)
             media = request.files
@@ -116,7 +116,6 @@ class psb(Resource):
         return newInfo.LikeJson()
 
 
-#@app.route("/api/psb/image/<ImageName>", methods=['GET'])
 @demo.route('/psb/image/<string:ImageName>')
 class ImageResponse(Resource):
     @api.response(200,'')
@@ -130,7 +129,6 @@ class ImageResponse(Resource):
             BAD(err3, msg7, 404)
 
 
-#@app.route("/api/psb/statistics", methods=['GET'])
 @demo.route('/psb/statistics')
 class statistics(Resource):    
     def get(self):
@@ -146,12 +144,6 @@ class statistics(Resource):
         return newInfo.LikeJson()
 
 
-#@app.route('/api/admin', methods=['POST'])
-#@demo.route('/admin')
-#class new_user(Resource):
-
-    
-#@app.route('/api/admin', methods=['GET'])
 @demo.route('/admin')
 class ListPsb(Resource):
     @cross_origin(Resource)
@@ -203,7 +195,7 @@ class ListPsb(Resource):
 
 
 
-#@app.route("/api/admin/<psb_id>", methods=['PUT', 'DELETE'])
+
 @demo.route('/admin/<string:psb_id>')
 class UpdateStatus(Resource):
     @cross_origin(Resource)
@@ -268,7 +260,6 @@ class UpdateStatus(Resource):
         else:
             return BAD(msg4, msg16, 400)
 
-#@app.route('/api/login', methods=['POST'])
 @demo.route('/login')
 class login(Resource):
     @cross_origin(Resource)
@@ -310,7 +301,6 @@ class login(Resource):
             return BAD(err4, msg17, 400)
 
 
-#@app.route('/api/logout', methods=['GET'])
 @demo.route('/logout')
 class logout(Resource):
     @cross_origin(Resource)

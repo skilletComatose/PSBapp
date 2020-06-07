@@ -1,6 +1,11 @@
 import json
 err1 = 'Error_with_image'
 
+dataKey = "psb" # datakey is the json key where psb information's are (psb is a key in data dict     )
+
+imageKey = "img" # imagekey is the key with image was posted
+
+
 err3 = 'Image_error'
 
 err4 = 'error'
@@ -54,20 +59,22 @@ warning = 'The psb sent is already registered, but thanks for send it'
 
 auth_token = json.dumps( {"auth_token":"anytoken"} )
 
+json_error = 'json_error'
+
 blacklistName = 'blacklist'
 
 logout1 = {'status':'logout'}
 log_out = json.dumps(logout1)
 missing_token = 'missing token'
 
-token_expired = 'token in blacklist, please log in'
+token_expired = 'token in blacklist, please log again'
 
 signature = 'Signature expired. Please log in again.'
 
 auth_token_response = 'auth_token'
 invalid_token = 'Invalid token. Please log in again.'
-E400   = '1. '+msg19 +'\n\n'+ '2. '+str(msg4) +'\n\n' + '3. '+msg3 +'\n\n' + '1. '+str(msg2) 
-E400v2 = '1. '+ msg18 +'\n\n'+'2. '+msg8
-E400v3 = '1. '+missing_token+'\n\n'+ msg18 +'\n\n'+'2. '+msg11 
-E400v4 = '1. '+ msg18 +'\n\n'+'2. '+msg8+'\n\n'+msg17 
-E403 =  '1. '+ signature +'\n\n'+'2. '+ invalid_token + '\n\n' + '3. '+token_expired
+E400   = '1. '+ msg19        +'\n\n'+'2. '+str(msg4)      +'\n\n'+ '3. '+msg3 +'\n\n' + '4. '+str(msg2) + '\n\n' + '5. '+ '{ '+json_error +':'+msg18+' }'
+E400v2 = '1. '+ msg18        +'\n\n'+'2. '+msg8
+E400v3 = '1. '+ missing_token+'\n\n'+'2. '+msg18          +'\n\n'+'3. '+msg11 
+E400v4 = '1. '+ msg18        +'\n\n'+'2. '+msg8           +'\n\n'+'3. '+msg17 
+E403   = '1. '+ signature    +'\n\n'+'2. '+ invalid_token +'\n\n'+'3. '+token_expired
