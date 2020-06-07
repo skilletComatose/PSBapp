@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 import jwt
 import bcrypt
 from config import salt,credentials,adminDatabase,Admincollection
-
+from msg import missing_token, token_expired,invalid_token,signature
 
                  
 class ReadJson: #read a Json object, turns it into a string and then into a dictionary
@@ -201,13 +201,11 @@ class admin(ManagePsb):
             return resp
         
         except jwt.ExpiredSignatureError:
-            m = 'Signature expired. Please log in again.'
-            resp = [False,m,403]   
+            resp = [False,signature,403]   
             return resp
         
-        except jwt.InvalidTokenError:
-            m = 'Invalid token. Please log in again.'
-            resp = [False,m,403]
+        except jwt.InvalidTokenError: 
+            resp = [False,invalid_token,403]
             return resp                
 
     
@@ -302,16 +300,14 @@ def check_token(SECRET_KEY):
         projec = {'_id':0}
         cursor = client.Filter('blacklist',query=query,Projection=projec)
         c = cursor.count()
-        if(c == 1):
-            m = "token in blacklist, please log in "
-            resp = [False,m,403,auth_token]
+        if(c == 1):   
+            resp = [False,token_expired,403,auth_token]
             return resp
         resp = admin.decode_auth_token(auth_token,SECRET_KEY)
         resp.append(auth_token)
         return resp
     else:
-        m = 'missing token'
-        resp = [False,m,400]
+        resp = [False,missing_token,400]
         return resp
 
 
@@ -325,7 +321,7 @@ def Point(string):
     for i in range( len(string) ):
         if(string[i]=="."):
             return i
-            
+
 
                      
 

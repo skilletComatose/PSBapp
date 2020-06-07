@@ -1,4 +1,4 @@
-
+import json
 err1 = 'Error_with_image'
 
 err3 = 'Image_error'
@@ -18,7 +18,7 @@ msg2 =  ['1. Field error :key posted not in dict'  ,
 msg3 = "key are ok but, the image wasn't sent :("
 
 
-msg4 = 'Key posted not in dict :('
+msg4 = {'json_error':'Key posted not in dict '}
 
 msg5 = 'Warning'
 
@@ -52,6 +52,22 @@ msg19 = 'Missing  multipart/form-data'
 
 warning = 'The psb sent is already registered, but thanks for send it'
 
+auth_token = json.dumps( {"auth_token":"anytoken"} )
+
 blacklistName = 'blacklist'
 
 logout1 = {'status':'logout'}
+log_out = json.dumps(logout1)
+missing_token = 'missing token'
+
+token_expired = 'token in blacklist, please log in'
+
+signature = 'Signature expired. Please log in again.'
+
+auth_token_response = 'auth_token'
+invalid_token = 'Invalid token. Please log in again.'
+E400   = '1. '+msg19 +'\n\n'+ '2. '+str(msg4) +'\n\n' + '3. '+msg3 +'\n\n' + '1. '+str(msg2) 
+E400v2 = '1. '+ msg18 +'\n\n'+'2. '+msg8
+E400v3 = '1. '+missing_token+'\n\n'+ msg18 +'\n\n'+'2. '+msg11 
+E400v4 = '1. '+ msg18 +'\n\n'+'2. '+msg8+'\n\n'+msg17 
+E403 =  '1. '+ signature +'\n\n'+'2. '+ invalid_token + '\n\n' + '3. '+token_expired
