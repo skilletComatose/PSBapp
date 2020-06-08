@@ -1,5 +1,5 @@
 from config import credentials, collection, databaseName, adminDatabase, Admincollection, verysecret, ALLOWED_EXTENSIONS, CORS_HEADERS, UPLOAD_FOLDER
-from tools import ReadJson, ManagePsb, OK, BAD, SaveImage, ManageKeys, admin, Admin_ReadJson, check_token
+from tools import ReadJson, ManagePsb, OK, BAD, SaveImage, ManageKeys, admin, Admin_ReadJson, check_token,check_image,remove_img
 from flask import send_from_directory, make_response
 from flask_cors import CORS, cross_origin
 from flask import Flask, request
@@ -118,15 +118,15 @@ class psb(Resource):
 
 @demo.route('/psb/image/<string:ImageName>')
 class ImageResponse(Resource):
+    @cross_origin(Resource)
     @api.response(200,'')
     @api.response(404,msg7)
     def get(self,ImageName):
-        """get psb image"""
-        filename = ImageName
-        try:
-            return send_from_directory(folder, filename, as_attachment=True)
-        except:
-            BAD(err3, msg7, 404)
+        """get psb image""" 
+        if( check_image( app.config.get('UPLOAD_FOLDER'),ImageName ) ):
+            return send_from_directory(folder, ImageName, as_attachment=True)
+        
+        return BAD(err3, msg7, 404)
 
 
 @demo.route('/psb/statistics')
@@ -253,10 +253,15 @@ class UpdateStatus(Resource):
         if(ObjectId.is_valid(psb_id)):
 
             query = {'_id': ObjectId(psb_id)}
-
+            projection = {'imageId':1}
             client = admin(credentials, databaseName)
+            imagename = client.Filter(collection, query = query,Projection=projection)
+            imagename = list(imagename)
+            imagename = imagename[0]['imageId']
             ok = client.Delete(collection, query)
             if(ok):
+                if(check_image( app.config.get('UPLOAD_FOLDER'),imagename )):
+                    remove_img(app.config.get('UPLOAD_FOLDER'),imagename)
                 return OK(msg14, 200)
             else:
                 return BAD(msg11, msg15, 404)

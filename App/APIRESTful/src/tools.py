@@ -324,7 +324,11 @@ def Point(string):
     for i in range( len(string) ):
         if(string[i]=="."):
             return i
+def check_image(path,imagename):
+    return os.path.exists(path + '/' + imagename) 
 
+def remove_img(path,imagename):
+    os.remove(path + '/' + imagename)
 
                      
 
