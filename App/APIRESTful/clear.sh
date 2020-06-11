@@ -1,7 +1,6 @@
 echo -e "\n------------------------"
-echo " >> Stopping containers"
+echo " >> Stopping api container"
 docker stop api
-docker stop db1
 echo "--------------------------- "
 
 echo "\n >> Removing api container "

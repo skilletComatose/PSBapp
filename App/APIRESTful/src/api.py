@@ -8,10 +8,12 @@ from bson.objectid import ObjectId
 from swagger import description,title,service
 from swagger_models import psb_post_parameters,admin_post,admin_get,admin_put
 import datetime
+from werkzeug.contrib.fixers import ProxyFix
 from msg import *  # here are all messages
 
 
 app  = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 cors = CORS(app)
 api  = Api(
             app         = app,

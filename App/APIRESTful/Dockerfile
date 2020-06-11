@@ -4,7 +4,8 @@ RUN pip3 install pymongo[srv]
 RUN pip3 install -U flask-cors
 RUN pip3 install flask-restx
 RUN pip3 install pyjwt==1.4.2
-RUN pip3 install bcrypt    
+RUN pip3 install bcrypt  
+RUN pip3 install Werkzeug==0.16.0  
 
 
 WORKDIR /api
