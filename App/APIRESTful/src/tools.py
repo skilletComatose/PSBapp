@@ -42,7 +42,22 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
             latitude       = not JsonToValidate['latitude'].strip()
             address        = not JsonToValidate['address'].strip() 
             neighborhood   = not JsonToValidate['neighborhood'].strip()
+            if(longitude):
+                self.missing.append('longitude is empty')
+                return False
 
+            if(latitude):
+                self.missing.append('latitude is empty')
+                return False
+            
+            if(address):
+                self.missing.append('address is empty')
+                return False
+            
+            if(neighborhood ):
+                self.missing.append('neighborhood is empty')   
+                return False                                 
+                                                
             return True
             
         else: # return False if any key is missing, also
@@ -60,18 +75,6 @@ class ReadJson: #read a Json object, turns it into a string and then into a dict
             if('longitude' not in JsonToValidate):  
                 self.missing.append ('Missing psb longitude')
             
-            if(longitude):
-                self.missing.append('longitude is empty')
-
-            if(latitude):
-                self.missing.append('latitude is empty')
-
-            if(address):
-                self.missing.append('address is empty')
-
-            if(neighborhood ):
-                self.missing.append('neighborhood is empty')   
-
             return False
 
 
@@ -82,10 +85,7 @@ class Admin_ReadJson(ReadJson):
         return data2
 
     def Validate(self,JsonToValidate):
-        # complete returns true if all data is present 
-        complete = ('status' in JsonToValidate )
-                                    
-        
+        complete = ('status' in JsonToValidate )    
         if(complete):
             return True
             
@@ -196,6 +196,7 @@ class admin(ManagePsb):
             
         except Exception as e:
             return e
+    
     @staticmethod
     def decode_auth_token(token,SECRET_KEY):
         try:

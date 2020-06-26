@@ -17,5 +17,5 @@ admin_get.add_argument('Authorization', location='headers',help='json web token(
 
 
 admin_put = reqparse.RequestParser()
-admin_put.add_argument('status',required=True, location='form',help='change psb status, example : {"status":"A"}')
+admin_put.add_argument('status',required=True, location='json',help='change psb status, example : {"status":"A"}')
 admin_put.add_argument('Authorization', location='headers',help='json web token(jwt)')
